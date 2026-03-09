@@ -1,0 +1,1767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EcoG-Bench — Supplementary Material</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+:root{
+  --primary:#4f46e5;--primary-light:#eef2ff;
+  --success:#059669;--warning:#d97706;--danger:#dc2626;
+  --slate-50:#f8fafc;--slate-100:#f1f5f9;--slate-200:#e2e8f0;
+  --slate-300:#cbd5e1;--slate-400:#94a3b8;--slate-500:#64748b;
+  --slate-600:#475569;--slate-700:#334155;--slate-800:#1e293b;--slate-900:#0f172a;
+  /* chart sizing tokens */
+  --chart-h-sm:320px;   /* small charts */
+  --chart-h-md:420px;   /* medium charts (default) */
+  --chart-h-lg:520px;   /* tall charts */
+  --chart-h-xl:640px;   /* very tall charts (boxplots, etc.) */
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  background:var(--slate-50);color:var(--slate-800);line-height:1.7;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+
+/* sidebar */
+.sidebar{position:fixed;top:0;left:0;width:240px;height:100vh;background:white;
+  border-right:1px solid var(--slate-200);overflow-y:auto;z-index:100;padding:24px 0}
+.sidebar-logo{padding:0 20px 16px;border-bottom:1px solid var(--slate-100);margin-bottom:12px}
+.sidebar-logo h2{font-size:14px;font-weight:700;color:var(--primary)}
+.sidebar-logo p{font-size:11px;color:var(--slate-400);margin-top:2px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 20px;font-size:12.5px;font-weight:500;
+  color:var(--slate-600);text-decoration:none;border-left:3px solid transparent;transition:all .15s;cursor:pointer}
+.nav-item:hover,.nav-item.active{background:var(--primary-light);color:var(--primary);border-left-color:var(--primary)}
+.nav-number{width:20px;height:20px;border-radius:50%;background:var(--slate-100);display:flex;
+  align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--slate-500);flex-shrink:0}
+.nav-item.active .nav-number{background:var(--primary);color:white}
+
+/* main */
+.main{margin-left:240px;padding:40px 60px 100px;max-width:1560px}
+
+/* page header */
+.page-header{background:linear-gradient(135deg,#4f46e5 0%,#7c3aed 100%);color:white;border-radius:16px;
+  padding:36px 44px;margin-bottom:44px}
+.page-header .badge{display:inline-block;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);
+  border-radius:20px;padding:3px 12px;font-size:11px;font-weight:600;letter-spacing:1px;
+  text-transform:uppercase;margin-bottom:12px}
+.page-header h1{font-size:28px;font-weight:700;letter-spacing:-.5px;margin-bottom:6px}
+.page-header p{font-size:14px;opacity:.85}
+
+/* section */
+.section{margin-bottom:56px;scroll-margin-top:28px}
+.section-header{display:flex;align-items:center;gap:12px;margin-bottom:24px;
+  padding-bottom:14px;border-bottom:2px solid var(--slate-100)}
+.section-number{width:34px;height:34px;border-radius:10px;background:var(--primary);color:white;
+  display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}
+.section-header h2{font-size:20px;font-weight:700;color:var(--slate-900);letter-spacing:-.3px}
+
+/* card */
+.card{background:white;border:1px solid var(--slate-200);border-radius:14px;padding:24px 28px;margin-bottom:20px;
+  box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.card h3{font-size:15px;font-weight:700;color:var(--slate-800);margin-bottom:14px;letter-spacing:-.2px}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:18px}
+.stat-card{background:white;border:1px solid var(--slate-200);border-radius:12px;padding:18px 20px;text-align:center}
+.stat-card .stat-value{font-size:28px;font-weight:700;color:var(--primary);line-height:1.1}
+.stat-card .stat-label{font-size:11px;font-weight:600;color:var(--slate-400);text-transform:uppercase;letter-spacing:.5px;margin-top:4px}
+.stat-card .stat-sub{font-size:11px;color:var(--slate-500);margin-top:3px}
+
+/* tables */
+.table-wrap{overflow-x:auto;border-radius:10px;border:1px solid var(--slate-200)}
+.table-scroll{overflow-x:auto;width:100%}
+table{width:100%;border-collapse:collapse;font-size:12.5px;white-space:nowrap}
+th{background:var(--slate-50);color:var(--slate-600);font-weight:600;font-size:11px;
+  text-transform:uppercase;letter-spacing:.4px;padding:9px 12px;text-align:center;
+  border-bottom:1px solid var(--slate-200);white-space:nowrap}
+th:first-child{text-align:left}
+td{padding:9px 12px;text-align:center;border-bottom:1px solid var(--slate-100);color:var(--slate-700)}
+td:first-child{text-align:left;font-weight:500;color:var(--slate-800)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(79,70,229,.04) !important}
+tr:hover .col-a{background:rgba(79,70,229,.07) !important}
+tr:hover .col-b{background:rgba(79,70,229,.04) !important}
+.row-omni td:first-child{border-left:3px solid var(--primary);padding-left:9px}
+.row-vl td:first-child{border-left:3px solid var(--success);padding-left:9px}
+.row-random td{color:var(--slate-400);font-style:italic}
+.group-header td{background:linear-gradient(90deg,var(--primary) 0%,#6d28d9 100%);
+  color:rgba(255,255,255,.92);font-size:10px;font-weight:700;text-transform:uppercase;
+  letter-spacing:1px;padding:7px 14px;border-bottom:none}
+.group-header td .gh-dot{display:inline-block;width:6px;height:6px;border-radius:50%;
+  background:rgba(255,255,255,.5);margin-right:6px;vertical-align:middle}
+/* column-group stripe classes */
+.col-a{background:rgba(248,250,252,.6)}
+.col-b{background:rgba(238,242,255,.45)}
+/* column-group left border separator */
+.col-sep{border-left:1px solid var(--slate-200) !important}
+/* column-group header tint */
+th.col-a{background:var(--slate-50)}
+th.col-b{background:#eef2ff}
+th.col-sep{border-left:1px solid var(--slate-300) !important}
+.val-high{color:var(--success);font-weight:600}
+.val-low{color:var(--danger)}
+.val-mid{color:var(--warning)}
+.val-placeholder{color:var(--slate-300)}
+.highlight-row td{background:#fffbeb !important;font-weight:600}
+
+/* code */
+.code-block{background:var(--slate-900);color:#e2e8f0;border-radius:10px;padding:18px 22px;
+  font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;overflow-x:auto;margin-bottom:14px}
+.code-block .comment{color:#64748b}.code-block .key{color:#93c5fd}
+.code-block .string{color:#86efac}.code-block .number{color:#fca5a5}.code-block .keyword{color:#c4b5fd}
+
+/* prompt tabs */
+.prompt-tabs{display:flex;gap:4px;border-bottom:1px solid var(--slate-200)}
+.prompt-tab{padding:7px 16px;border-radius:8px 8px 0 0;font-size:12.5px;font-weight:600;cursor:pointer;
+  border:1px solid var(--slate-200);border-bottom:none;background:var(--slate-50);color:var(--slate-500);
+  transition:all .15s;margin-bottom:-1px}
+.prompt-tab.active{background:white;color:var(--primary);border-bottom-color:white}
+.prompt-pane{display:none}.prompt-pane.active{display:block}
+
+/* tags */
+.tag{display:inline-block;padding:1px 8px;border-radius:20px;font-size:10.5px;font-weight:600;letter-spacing:.3px}
+.tag-omni{background:#eef2ff;color:var(--primary)}.tag-vl{background:#ecfdf5;color:var(--success)}
+.tag-open{background:#fff7ed;color:#c2410c}.tag-prop{background:#faf5ff;color:#7e22ce}
+
+/* info boxes */
+.info-box{background:var(--primary-light);border:1px solid #c7d2fe;border-radius:10px;
+  padding:14px 18px;font-size:13px;color:#3730a3;margin-bottom:14px}
+.warning-box{background:#fffbeb;border:1px solid #fde68a;border-radius:10px;
+  padding:14px 18px;font-size:13px;color:#92400e;margin-bottom:14px}
+.success-box{background:#ecfdf5;border:1px solid #a7f3d0;border-radius:10px;
+  padding:14px 18px;font-size:13px;color:#065f46;margin-bottom:14px}
+
+/* layout helpers */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;margin-bottom:20px}
+
+/* chart containers — white bg + subtle inner shadow so charts feel "framed" */
+.chart-container{
+  width:100%;
+  background:#fff;
+  border-radius:10px;
+  /* subtle inset frame */
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.04);
+}
+/* size utility classes */
+.chart-sm{height:var(--chart-h-sm)}
+.chart-md{height:var(--chart-h-md)}
+.chart-lg{height:var(--chart-h-lg)}
+.chart-xl{height:var(--chart-h-xl)}
+.formula-box{background:var(--slate-50);border:1px solid var(--slate-200);border-radius:8px;
+  padding:12px 16px;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:var(--slate-700);margin:10px 0}
+
+/* step list */
+.step-list{list-style:none}
+.step-list li{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--slate-100)}
+.step-list li:last-child{border-bottom:none}
+.step-num{width:26px;height:26px;border-radius:50%;background:var(--primary);color:white;
+  display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;margin-top:2px}
+.step-content strong{display:block;font-size:13.5px;color:var(--slate-800);margin-bottom:3px}
+.step-content p{font-size:12.5px;color:var(--slate-600)}
+
+/* annotation flow */
+.annotation-flow{display:flex;align-items:flex-start;gap:0;margin:18px 0;overflow-x:auto}
+.ann-step{flex:1;min-width:130px;text-align:center;position:relative}
+.ann-step:not(:last-child)::after{content:'→';position:absolute;right:-10px;top:20px;
+  font-size:16px;color:var(--slate-300)}
+.ann-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;
+  justify-content:center;font-size:20px;margin:0 auto 6px}
+.ann-step h4{font-size:12px;font-weight:600;color:var(--slate-700);margin-bottom:3px}
+.ann-step p{font-size:11px;color:var(--slate-500);padding:0 6px}
+
+/* progress bars */
+.progress-bar-container{margin:7px 0}
+.progress-bar-label{font-size:11px;color:var(--slate-500);margin-bottom:3px;display:flex;justify-content:space-between}
+.progress-bar{height:7px;border-radius:4px;background:var(--slate-100);overflow:hidden}
+.progress-bar-fill{height:100%;border-radius:4px}
+
+/* ── CASE STUDY redesign ── */
+.level-tabs{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap}
+.level-tab{padding:8px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;
+  background:var(--slate-100);color:var(--slate-600);border:2px solid transparent;transition:all .15s}
+.level-tab.active{background:var(--primary-light);color:var(--primary);border-color:var(--primary)}
+.level-panel{display:none}.level-panel.active{display:block}
+
+.case-card-v2{background:white;border:1px solid var(--slate-200);border-radius:14px;
+  overflow:hidden;margin-bottom:18px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.case-card-v2.fail{border-top:4px solid var(--danger)}
+.case-card-v2.partial{border-top:4px solid var(--warning)}
+
+.case-top{padding:16px 20px;border-bottom:1px solid var(--slate-100);
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.case-badge{padding:3px 10px;border-radius:6px;font-size:11.5px;font-weight:700;letter-spacing:.3px}
+.badge-fail{background:#fee2e2;color:#b91c1c}
+.badge-partial{background:#fef3c7;color:#92400e}
+.badge-level{background:#eef2ff;color:#4338ca}
+.badge-scene{background:#ecfdf5;color:#065f46}
+.badge-inst{background:#faf5ff;color:#6d28d9}
+
+.case-title{font-size:14px;font-weight:700;color:var(--slate-800);flex:1}
+
+.case-body-grid{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.case-col{padding:16px 20px}
+.case-col+.case-col{border-left:1px solid var(--slate-100)}
+.case-col h4{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;
+  color:var(--slate-400);margin-bottom:8px}
+
+.io-block{background:var(--slate-50);border:1px solid var(--slate-200);border-radius:8px;
+  padding:10px 14px;font-size:12.5px;color:var(--slate-700);margin-bottom:8px;line-height:1.6}
+.io-block.gt{border-color:#a7f3d0;background:#f0fdf4}
+.io-block.pred-correct{border-color:#bfdbfe;background:#eff6ff}
+.io-block.pred-wrong{border-color:#fecaca;background:#fff5f5}
+.io-block .field{font-size:10.5px;font-weight:700;text-transform:uppercase;
+  letter-spacing:.5px;color:var(--slate-400);margin-bottom:3px}
+.io-block .value{color:var(--slate-700)}
+.io-block code{background:rgba(0,0,0,.06);border-radius:3px;padding:1px 5px;font-size:11px}
+
+.metric-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.chip{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.chip-ok{background:#dcfce7;color:#166534}
+.chip-fail{background:#fee2e2;color:#991b1b}
+.chip-mid{background:#fef3c7;color:#92400e}
+
+.analysis-box{background:var(--primary-light);border-radius:8px;padding:10px 14px;
+  font-size:12.5px;color:#3730a3;margin-top:8px;line-height:1.6}
+
+/* scene visual placeholder */
+.scene-visual{width:100%;height:140px;border-radius:8px;background:var(--slate-100);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  color:var(--slate-400);font-size:12px;gap:4px;border:2px dashed var(--slate-200)}
+.scene-visual .big-icon{font-size:32px}
+
+/* delta badges */
+.delta-badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:11px;font-weight:700}
+.delta-pos{background:#fee2e2;color:#b91c1c}
+.delta-neg{background:#dcfce7;color:#15803d}
+.delta-zero{background:#dbeafe;color:#1d4ed8}
+
+/* scroll-top */
+.scroll-top{position:fixed;bottom:24px;right:24px;width:38px;height:38px;border-radius:50%;
+  background:var(--primary);color:white;border:none;cursor:pointer;font-size:16px;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 12px rgba(79,70,229,.3);z-index:200}
+
+/* page footer */
+.page-footer{background:white;border:1px solid var(--slate-200);border-radius:12px;
+  padding:22px 26px;font-size:12.5px;color:var(--slate-500);line-height:1.8}
+
+@media(max-width:900px){
+  .sidebar{display:none}.main{margin-left:0;padding:20px}
+  .two-col,.three-col{grid-template-columns:1fr}
+  .case-body-grid{grid-template-columns:1fr}
+}
+
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sidebar-logo"><h2>EcoG-Bench</h2><p>Supplementary Material</p></div>
+  <a class="nav-item active" onclick="scrollTo('sec0')"><span class="nav-number">0</span>Dataset Card</a>
+  <a class="nav-item" onclick="scrollTo('sec1')"><span class="nav-number">1</span>Annotation Protocol</a>
+  <a class="nav-item" onclick="scrollTo('sec2')"><span class="nav-number">2</span>Model Prompts</a>
+  <a class="nav-item" onclick="scrollTo('sec3')"><span class="nav-number">3</span>Human Baseline</a>
+  <a class="nav-item" onclick="scrollTo('sec4')"><span class="nav-number">4</span>Spatial Threshold</a>
+  <a class="nav-item" onclick="scrollTo('sec5')"><span class="nav-number">5</span>Extended Statistics</a>
+  <a class="nav-item" onclick="scrollTo('sec5b')"><span class="nav-number">5b</span>Images+ASR vs Video</a>
+  <a class="nav-item" onclick="scrollTo('sec5c')"><span class="nav-number">5c</span>Temporal Distributions</a>
+  <a class="nav-item" onclick="scrollTo('sec5d')"><span class="nav-number">5d</span>Sub-metric &amp; Bottleneck</a>
+  <a class="nav-item" onclick="scrollTo('sec5e')"><span class="nav-number">5e</span>Cross-Lingual &amp; Calibration</a>
+  <a class="nav-item" onclick="scrollTo('sec6')"><span class="nav-number">6</span>Case Studies</a>
+  <a class="nav-item" onclick="scrollTo('sec7')"><span class="nav-number">7</span>Limitations &amp; Ethics</a>
+</nav>
+
+<main class="main">
+
+<div class="page-header">
+  <div class="badge">Supplementary Material</div>
+  <h1>EcoG-Bench: Egocentric Co-Speech Grounding Benchmark</h1>
+  <p>EcoG challenges agents to localize physical objects within egocentric video streams by parsing the spatiotemporal synergy between ambiguous speech and dynamic user gestures.</p>
+</div>
+
+<!-- ═══════════════════════ §0 Dataset Card ═══════════════════════ -->
+<section class="section" id="sec0">
+<div class="section-header"><div class="section-number">0</div><h2>Dataset Card — License, Privacy &amp; Bias</h2></div>
+
+<div class="card-grid">
+  <div class="stat-card"><div class="stat-value">367</div><div class="stat-label">EN Video Instances</div><div class="stat-sub">English instructions</div></div>
+  <div class="stat-card"><div class="stat-value" style="color:var(--success)">444</div><div class="stat-label">ZH Video Instances</div><div class="stat-sub">Chinese instructions</div></div>
+  <div class="stat-card"><div class="stat-value" style="color:#d97706">811</div><div class="stat-label">Total Instances</div><div class="stat-sub">EN + ZH (no overlap)</div></div>
+  <div class="stat-card"><div class="stat-value" style="color:#7c3aed">3</div><div class="stat-label">Scene Domains</div><div class="stat-sub">Industrial / Kitchen / Office</div></div>
+  <div class="stat-card"><div class="stat-value" style="color:#0891b2">4</div><div class="stat-label">Difficulty Levels</div><div class="stat-sub">L1 (gesture) → L4 (4-ref multi-step)</div></div>
+  <div class="stat-card"><div class="stat-value" style="color:#be185d">6</div><div class="stat-label">Instruction Types</div><div class="stat-sub">Instruction1 – Instruction6</div></div>
+</div>
+
+<div class="card">
+  <h3>Dataset Distribution — Language × Scene × Level</h3>
+  <div id="datasetChart" style="height:380px" class="chart-container"></div>
+</div>
+
+<div class="two-col">
+  <div class="card">
+    <h3>📄 License</h3>
+    <p style="font-size:13px;color:var(--slate-600)">Released under <strong>CC BY 4.0</strong>. Academic/non-commercial use permitted with attribution. Commercial use requires explicit written consent.</p>
+  </div>
+  <div class="card">
+    <h3>🔐 Privacy Statement</h3>
+    <p style="font-size:13px;color:var(--slate-600)">All recordings conducted under <strong>IRB-approved</strong> protocols. Participants provided informed written consent. All faces and PII <strong>blurred</strong> prior to release. No sensitive personal data included.</p>
+  </div>
+</div>
+
+<div class="card">
+  <h3>⚖️ Known Biases</h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+    <p style="font-size:12.5px;color:var(--slate-600)"><strong>Scene bias:</strong> Industrial scenes are over-represented in small-object samples (≈49.2% of targets < 0.5% frame area), inflating difficulty on industrial subsets.</p>
+    <p style="font-size:12.5px;color:var(--slate-600)"><strong>Language balance:</strong> EN and ZH are independently collected, not translational pairs. Instruction complexity distributions may vary between the two.</p>
+    <p style="font-size:12.5px;color:var(--slate-600)"><strong>Demographics:</strong> All participants recruited from one research institution; gesture styles may not generalize globally.</p>
+    <p style="font-size:12.5px;color:var(--slate-600)"><strong>VL modality gap:</strong> ASR text substitutes may introduce errors on technical industrial vocabulary, unfairly penalizing VL models on temporal grounding.</p>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════════════ §1 Annotation ═══════════════════════ -->
+<section class="section" id="sec1">
+<div class="section-header"><div class="section-number">1</div><h2>Annotation Protocol</h2></div>
+
+<div class="info-box"><strong>Task Definition.</strong> Each video is an ego-centric clip (4–12 s) in which an operator simultaneously speaks an instruction and points at objects/regions. Annotation recovers the full intent: <strong>what</strong> object, <strong>where</strong> it is (pixel on last frame), and <strong>when</strong> the gesture peaked (ms timestamp).</div>
+
+<div class="annotation-flow">
+  <div class="ann-step"><div class="ann-icon" style="background:#eef2ff">🎬</div><h4>Video Ingestion</h4><p>Ego-centric clips imported; scene &amp; instruction type tagged</p></div>
+  <div class="ann-step"><div class="ann-icon" style="background:#ecfdf5">🎙️</div><h4>ASR Transcription</h4><p>Whisper-large-v3 + manual verification; word-level timestamps (ms)</p></div>
+  <div class="ann-step"><div class="ann-icon" style="background:#fff7ed">🖱️</div><h4>Point Annotation</h4><p>Annotator clicks pixel coordinates on last frame of clip</p></div>
+  <div class="ann-step"><div class="ann-icon" style="background:#faf5ff">⏱️</div><h4>Temporal Labeling</h4><p>ASR word boundaries aligned to object references (LLM-assisted + verified)</p></div>
+  <div class="ann-step"><div class="ann-icon" style="background:#fff1f2">🔍</div><h4>Mask Segmentation</h4><p>SAM3-based segmentation mask from annotated click point</p></div>
+  <div class="ann-step"><div class="ann-icon" style="background:#f0fdf4">✅</div><h4>QA Review</h4><p>3-reviewer check; Cohen's κ > 0.80 required for release</p></div>
+</div>
+
+<div class="two-col">
+  <div class="card">
+    <h3>Instruction Type Taxonomy</h3>
+    <table>
+      <thead><tr><th>Level</th><th>Template</th><th>Description</th><th># Refs</th><th>Temporal</th></tr></thead>
+      <tbody>
+        <tr><td>L1</td><td>Instruction1</td><td>Gesture only, no speech</td><td>1</td><td>No</td></tr>
+        <tr><td>L2</td><td>Instruction2</td><td>Single-object manipulation</td><td>1</td><td>Yes</td></tr>
+        <tr><td>L3</td><td>Instruction3</td><td>Single-object placement (src→dst)</td><td>2</td><td>Yes</td></tr>
+        <tr><td>L3</td><td>Instruction4</td><td>Relational placement</td><td>2</td><td>Yes</td></tr>
+        <tr><td>L4</td><td>Instruction5</td><td>Multi-step: place then pick (3 refs)</td><td>3</td><td>Yes</td></tr>
+        <tr><td>L4</td><td>Instruction6</td><td>Multi-step: place then place (4 refs)</td><td>4</td><td>Yes</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="card">
+    <h3>Quality Control</h3>
+    <ul style="font-size:12.5px;color:var(--slate-600);line-height:2;padding-left:16px">
+      <li>≥ 2 independent annotators per sample</li>
+      <li>Disagreements resolved by senior adjudicator</li>
+      <li>Spatial annotations validated against SAM3 masks</li>
+      <li>Temporal annotations validated via ASR alignment (GPT-4o assisted)</li>
+      <li>Inter-annotator agreement: κ = <strong>0.84</strong> (spatial), <strong>0.87</strong> (classification)</li>
+    </ul>
+  </div>
+</div>
+
+<div class="card">
+  <h3>Object-Size Distribution (587 annotated targets)</h3>
+  <div class="two-col" style="gap:20px;align-items:center">
+    <div id="sizeChart" style="height:320px" class="chart-container"></div>
+    <div>
+      <div class="progress-bar-container">
+        <div class="progress-bar-label"><span>🔶 Small (<0.5%)</span><span><strong>289 / 587 = 49.2%</strong></span></div>
+        <div class="progress-bar"><div class="progress-bar-fill" style="width:49.2%;background:#f59e0b"></div></div>
+      </div>
+      <div class="progress-bar-container" style="margin-top:10px">
+        <div class="progress-bar-label"><span>🔷 Medium (0.5–2%)</span><span><strong>251 / 587 = 42.8%</strong></span></div>
+        <div class="progress-bar"><div class="progress-bar-fill" style="width:42.8%;background:#6366f1"></div></div>
+      </div>
+      <div class="progress-bar-container" style="margin-top:10px">
+        <div class="progress-bar-label"><span>🟢 Large (≥2%)</span><span><strong>47 / 587 = 8.0%</strong></span></div>
+        <div class="progress-bar"><div class="progress-bar-fill" style="width:8%;background:#10b981"></div></div>
+      </div>
+      <p style="font-size:11.5px;color:var(--slate-400);margin-top:14px">Industrial scenes account for the majority of Small objects (screws, bolts, micro-components).</p>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════════════ §2 Prompts ══════════════════════════ -->
+<section class="section" id="sec2">
+<div class="section-header"><div class="section-number">2</div><h2>Model Prompt Design</h2></div>
+
+<div class="two-col" style="margin-bottom:18px">
+  <div class="info-box" style="margin:0"><strong>Native Omni Models</strong> receive the <strong>raw video file</strong>. Audio and visual processed natively. No ASR injected. Gemini uses <code>[y,x]</code> coord order; others use <code>[x,y]</code>.</div>
+  <div class="success-box" style="margin:0"><strong>Vision-Language Models</strong> receive <strong>sampled frames (2 fps)</strong> plus ASR transcript via <code>&lt;asr_data&gt;</code> XML tag. All VL models use <code>[x,y]</code> coord order.</div>
+</div>
+
+<div class="card" style="padding:0;overflow:hidden">
+  <div style="padding:14px 22px 0">
+    <div class="prompt-tabs">
+      <button class="prompt-tab active" onclick="switchTab('sys-en')">System Prompt (EN)</button>
+      <button class="prompt-tab" onclick="switchTab('sys-zh')">System Prompt (ZH)</button>
+      <button class="prompt-tab" onclick="switchTab('user-en')">User Prompt</button>
+      <button class="prompt-tab" onclick="switchTab('asr-align')">ASR-Align Prompt</button>
+    </div>
+  </div>
+  <div style="padding:0 22px 22px;border-top:1px solid var(--slate-200)">
+
+    <div class="prompt-pane active" id="pane-sys-en">
+      <div style="padding:12px 0 8px;display:flex;gap:8px;flex-wrap:wrap">
+        <span class="tag tag-omni">Omni Models</span><span class="tag tag-vl">VL Models</span>
+        <span style="font-size:11.5px;color:var(--slate-400)">Shared base; task-specific guidance appended per Instruction1–6</span>
+      </div>
+<div class="code-block"><span class="keyword">SYSTEM PROMPT (English, coord_order="xy")</span>
+<span class="comment">──────────────────────────────────────────────</span>
+You are a visual-language assistant with Embodied AI capabilities. Your core task is <span class="string">Visual-Speech Intent Grounding (EcoG)</span>.
+
+<span class="key">**Task Background:**</span>
+You must deeply understand the user's underlying intent based on ego-centric video frames and the user's voice instructions, translating them into explicit actionable commands, option selections, and visual coordinate points.
+
+<span class="key">**Option List:**</span>
+{{options_text}}   <span class="comment"># 8-12 candidate options, injected per sample</span>
+
+<span class="key">**Core Constraints &amp; Rules:**</span>
+1. <span class="key">Pure JSON Output</span>: You MUST output ONLY a valid JSON string.
+2. <span class="key">Coordinate Reference</span>: [x,y] range 0-1000. Coordinates MUST be from the <span class="string">LAST FRAME</span>.
+3. <span class="key">Concept Distinction</span>:
+   - <span class="string">target_object</span>: object to grasp/move/manipulate.
+   - <span class="string">spatial_affordance</span>: destination area or reference region for placement.
+
+<span class="key">**JSON Output Template:**</span>
+{{
+  <span class="string">"reasoning"</span>: <span class="string">"Brief reasoning (under 50 words)"</span>,
+  <span class="string">"explicit_command"</span>: <span class="string">"complete actionable command"</span>,
+  <span class="string">"selected_options"</span>: [<span class="string">"A"</span>, <span class="string">"b"</span>],
+  <span class="string">"point_list"</span>: [
+    {{ <span class="string">"type"</span>:<span class="string">"target_object"</span>, <span class="string">"description"</span>:<span class="string">"..."</span>,
+       <span class="string">"point"</span>:[500,300], <span class="string">"timestamp"</span>:1200 }},
+    {{ <span class="string">"type"</span>:<span class="string">"spatial_affordance"</span>, <span class="string">"description"</span>:<span class="string">"..."</span>,
+       <span class="string">"point"</span>:[300,500], <span class="string">"timestamp"</span>:3200 }}
+  ]
+}}
+<span class="comment"># point_list length/order must match selected_options exactly</span>
+<span class="comment"># timestamp: gesture peak moment (ms) when pointing clearly identifies the target</span>
+<span class="comment"># Task-specific hint appended: e.g. Instruction3 → "target_object → spatial_affordance"</span>
+OUTPUT ONLY RAW JSON. NO EXPLANATIONS.</div>
+    </div>
+
+    <div class="prompt-pane" id="pane-sys-zh">
+      <div style="padding:12px 0 8px"><span class="tag tag-omni">Omni</span><span class="tag tag-vl" style="margin-left:6px">VL</span><span style="font-size:11.5px;color:var(--slate-400);margin-left:8px">中文 prompt 版本</span></div>
+<div class="code-block"><span class="keyword">SYSTEM PROMPT（中文，coord_order="xy"）</span>
+<span class="comment">──────────────────────────────────────────────</span>
+你是一个具备具身智能（Embodied AI）能力的视觉-语言助手。你的核心任务是执行"视觉-语音意图定位"（<span class="string">Visual-Speech Intent Grounding, EcoG</span>）。
+
+<span class="key">**任务背景：**</span>
+你需要根据第一人称视角（Ego-centric）的视频帧和用户的语音指令，深度理解用户的潜在意图，并将其精准转化为明确的行动指令、选项标号和视觉坐标点。
+
+<span class="key">**备选选项列表：**</span>
+{{options_text}}
+
+<span class="key">**核心约束与规则：**</span>
+1. <span class="key">纯净 JSON 输出</span>：你必须且只能输出合法的 JSON 字符串。
+2. <span class="key">坐标系基准</span>：[x,y] 范围 0-1000，必须基于<span class="string">【最后一帧】</span>提取坐标。
+3. <span class="key">概念区分</span>：
+   - <span class="string">target_object</span>：用户意图抓取、移动或操作的具体物体。
+   - <span class="string">spatial_affordance</span>：用户意图放置物体的目标位置或参考区域。
+
+<span class="key">**JSON 输出模板：**</span>
+{{
+  <span class="string">"reasoning"</span>: <span class="string">"推理过程（≤100字）"</span>,
+  <span class="string">"explicit_command"</span>: <span class="string">"明确且完整的中文执行指令"</span>,
+  <span class="string">"selected_options"</span>: [<span class="string">"A"</span>, <span class="string">"b"</span>],
+  <span class="string">"point_list"</span>: [
+    {{ <span class="string">"type"</span>:<span class="string">"target_object"</span>, <span class="string">"description"</span>:<span class="string">"..."</span>,
+       <span class="string">"point"</span>:[500,300], <span class="string">"timestamp"</span>:1200 }},
+    {{ <span class="string">"type"</span>:<span class="string">"spatial_affordance"</span>, <span class="string">"description"</span>:<span class="string">"..."</span>,
+       <span class="string">"point"</span>:[300,500], <span class="string">"timestamp"</span>:3200 }}
+  ]
+}}
+<span class="comment"># point_list 长度和顺序必须与 selected_options 严格一致</span>
+<span class="comment"># timestamp：用户手指动作达到稳定状态（Peak stage）、最明确指向该物体/区域的时间戳（毫秒）</span>
+<span class="comment"># 末尾附加当前指令场景提示：如 指令3 → "target_object → spatial_affordance"</span>
+请直接输出 JSON，不要有任何前缀或后缀。</div>
+    </div>
+
+    <div class="prompt-pane" id="pane-user-en">
+      <div style="padding:12px 0 10px;font-size:12px;color:var(--slate-500)">User message content blocks sent to the model. The two pathways differ in <strong>what modality carries the speech</strong> and <strong>whether frame timestamps are injected</strong>.</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+
+        <div>
+          <div style="margin-bottom:6px"><span class="tag tag-omni">Omni Models</span><span style="font-size:11.5px;color:var(--slate-400);margin-left:8px">audio embedded in video — no ASR, no timestamps</span></div>
+<div class="code-block" style="font-size:11.5px"><span class="comment">[text block]</span>
+<span class="string">&lt;instruction&gt;</span>
+{{user_transcript}}
+<span class="string">&lt;/instruction&gt;</span>
+
+Please analyze the provided video frames alongside
+the inputs above. Generate your response strictly
+in the requested JSON format.
+
+<span class="comment">[video block]  ← native video file with audio</span>
+<span class="comment">    (Gemini: uploaded file; Qwen/Ming/MiniCPM: base64)</span></div>
+        </div>
+
+        <div>
+          <div style="margin-bottom:6px"><span class="tag tag-vl">VL Models</span><span style="font-size:11.5px;color:var(--slate-400);margin-left:8px">speech via ASR text + per-frame timestamp tags</span></div>
+<div class="code-block" style="font-size:11.5px"><span class="comment">[text block]</span>
+<span class="string">&lt;instruction&gt;</span>
+{{user_transcript}}
+<span class="string">&lt;/instruction&gt;</span>
+<span class="string">&lt;asr_data&gt;</span>
+{{"words": [
+  {{"word":"Put",   "begin_time":320,  "end_time":520}},
+  {{"word":"this",  "begin_time":540,  "end_time":810}},
+  {{"word":"shelf", "begin_time":1140, "end_time":1480}}, ...
+]}}
+Note: ASR results contain word-level timestamps
+(begin_time, end_time) of the words in the user's transcript.
+<span class="string">&lt;/asr_data&gt;</span>
+
+Please analyze the provided video frames alongside
+the inputs above. Generate your response strictly
+in the requested JSON format.
+
+<span class="comment">[text block]  ← timestamp before each frame</span>
+<span class="string">&lt;timestamp_ms&gt;</span>0
+<span class="comment">[image block]  frame 0  (0 ms)</span>
+
+<span class="comment">[text block]</span>
+<span class="string">&lt;timestamp_ms&gt;</span>500
+<span class="comment">[image block]  frame 1  (500 ms)</span>
+
+<span class="comment">[text block]</span>
+<span class="string">&lt;timestamp_ms&gt;</span>1000
+<span class="comment">[image block]  frame 2  (1000 ms)</span>
+<span class="comment">    ···  2 fps sampling, ~8–24 frames total</span></div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="prompt-pane" id="pane-asr-align">
+      <div style="padding:12px 0 8px;font-size:12px;color:var(--slate-500)">Auxiliary prompt for GT construction only — aligns ASR word timestamps to annotated object references.</div>
+<div class="code-block"><span class="keyword">ASR ALIGNMENT PROMPT (GT pipeline only)</span>
+<span class="comment">──────────────────────────────────────────────</span>
+Align ASR word tokens with annotated objects/regions.
+Rules: sequential order, sub-word merging, error flagging.
+Output JSON array, len == len(object_space):
+[{{ "index":0, "asr_begin_time":3370, "asr_end_time":4530, "asr_match_error":false }}]</div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <h3>Input Mode &amp; Coordinate Convention by Model Family</h3>
+  <div class="table-scroll">
+  <table>
+    <thead><tr><th>Model Family</th><th>Type</th><th>Input Mode</th><th>Coord Format</th><th>ASR in Prompt</th><th>Frame Timestamps</th><th>Frame Rate</th></tr></thead>
+    <tbody>
+      <tr class="row-omni"><td>Gemini-3-Pro/Flash</td><td><span class="tag tag-prop">Pro</span></td><td>Native video file</td><td><code>[y, x]</code> (yx)</td><td>No</td><td>No</td><td>Native</td></tr>
+      <tr class="row-omni"><td>Qwen3-Omni series</td><td><span class="tag tag-prop">Prop/OS</span></td><td>Native video file</td><td><code>[x, y]</code> (xy)</td><td>No</td><td>No</td><td>Native</td></tr>
+      <tr class="row-omni"><td>Ming-Lite-Omni / MiniCPM-o</td><td><span class="tag tag-open">OS</span></td><td>Native video file</td><td><code>[x, y]</code> (xy)</td><td>No</td><td>No</td><td>Native</td></tr>
+      <tr class="row-vl"><td>GPT-5 series</td><td><span class="tag tag-prop">Pro</span></td><td>Sampled frames</td><td><code>[x, y]</code> (xy)</td><td>Yes</td><td>Yes (<code>&lt;timestamp_ms&gt;</code>)</td><td>2 fps</td></tr>
+      <tr class="row-vl"><td>Qwen3-VL series</td><td><span class="tag tag-open">OS</span></td><td>Sampled frames</td><td><code>[x, y]</code> (xy)</td><td>Yes</td><td>Yes (<code>&lt;timestamp_ms&gt;</code>)</td><td>2 fps</td></tr>
+      <tr class="row-vl"><td>LLaVA series</td><td><span class="tag tag-open">OS</span></td><td>Sampled frames</td><td><code>[x, y]</code> (xy)</td><td>Yes</td><td>Yes (<code>&lt;timestamp_ms&gt;</code>)</td><td>2 fps</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════════════ §3 Human Baseline ═══════════════════ -->
+<section class="section" id="sec3">
+<div class="section-header"><div class="section-number">3</div><h2>Human Baseline — Test Protocol</h2></div>
+
+<div class="info-box">Human baseline measures the upper bound achievable by a careful human observer with the same inputs as models (video clip with audio + option list), using an intuitive annotation UI.</div>
+
+<div class="card">
+  <h3>Interface Overview — 3 Tasks per Referent</h3>
+  <div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px;background:#f8fafc;border:2px dashed var(--slate-200);border-radius:12px;padding:20px;margin-bottom:12px">
+    <div style="display:flex;align-items:center;gap:8px;background:white;border:1px solid var(--slate-200);border-radius:8px;padding:10px 14px">
+      <span style="font-size:22px">▶️</span>
+      <div><strong style="font-size:12px">Watch video</strong><br><span style="font-size:11px;color:var(--slate-500)">Audio enabled, full clip</span></div>
+    </div>
+    <span style="font-size:18px;color:var(--slate-300)">→</span>
+    <div style="display:flex;align-items:center;gap:8px;background:white;border:1px solid var(--slate-200);border-radius:8px;padding:10px 14px">
+      <span style="font-size:22px">⏱️</span>
+      <div><strong style="font-size:12px">When (per referent)</strong><br><span style="font-size:11px;color:var(--slate-500)">Drag progress-bar → gesture peak ms</span></div>
+    </div>
+    <span style="font-size:18px;color:var(--slate-300)">→</span>
+    <div style="display:flex;align-items:center;gap:8px;background:white;border:1px solid var(--slate-200);border-radius:8px;padding:10px 14px">
+      <span style="font-size:22px">🖱️</span>
+      <div><strong style="font-size:12px">Where (per referent)</strong><br><span style="font-size:11px;color:var(--slate-500)">Click pixel on <strong>last frame</strong></span></div>
+    </div>
+    <span style="font-size:18px;color:var(--slate-300)">→</span>
+    <div style="display:flex;align-items:center;gap:8px;background:white;border:1px solid var(--slate-200);border-radius:8px;padding:10px 14px">
+      <span style="font-size:22px">☑️</span>
+      <div><strong style="font-size:12px">What (per referent)</strong><br><span style="font-size:11px;color:var(--slate-500)">Select option label from list</span></div>
+    </div>
+  </div>
+  <p style="font-size:11.5px;color:var(--slate-400);text-align:center">Steps 2–4 repeat for each referent (1–4 referents for L1–L4)</p>
+</div>
+
+<div class="card">
+  <h3>Participant Protocol (5 annotators per video)</h3>
+  <ul class="step-list">
+    <li>
+      <div class="step-num">①</div>
+      <div class="step-content">
+        <strong>Recruitment &amp; Screening</strong>
+        <p>5 adult volunteers (≥18 yrs) per video, fluent in instruction language (EN or ZH). Naïve to dataset. Written informed consent under IRB approval. 5 practice examples before formal annotation.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-num">②</div>
+      <div class="step-content">
+        <strong>When — Temporal Grounding (Progress-bar Drag)</strong>
+        <p>After watching the full video with audio, drag a <strong>ms-resolution progress-bar slider</strong> to mark the moment the pointing gesture first peaked toward each referenced object/region. One drag per referent, in instruction order.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-num">③</div>
+      <div class="step-content">
+        <strong>Where — Spatial Grounding (Click on Last Frame)</strong>
+        <p>The annotation interface shows the <strong>last frame</strong> of the video clip (not the intermediate frame at the temporal selection). The participant clicks a single pixel coordinate on this frame to indicate the target object or region center. Clicking anywhere within the ground-truth mask counts as correct.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-num">④</div>
+      <div class="step-content">
+        <strong>What — Intent Classification (Option Selection)</strong>
+        <p>Same 8–12 option list as the models. Participant selects option label(s) in execution order.</p>
+      </div>
+    </li>
+    <li>
+      <div class="step-num">⑤</div>
+      <div class="step-content">
+        <strong>Aggregation</strong>
+        <p>Each participant's response triplet evaluated with <em>Acc_eco</em>. Human baseline = mean across 5 participants per sample, then dataset average. Samples with ≥2 invalid responses excluded.</p>
+      </div>
+    </li>
+  </ul>
+</div>
+
+<div class="warning-box"><strong>Human vs. Model Comparison:</strong> Human participants watch with native audio. VL models receive 2 fps frames + ASR text. This slightly disadvantages VL models on temporal grounding. All participants annotate spatial coordinates on the <strong>last frame</strong>, consistent with model evaluation.</div>
+</section>
+
+<!-- ═══════════════════════ §4 Threshold ════════════════════════ -->
+<section class="section" id="sec4">
+<div class="section-header"><div class="section-number">4</div><h2>Spatial Threshold Sensitivity: δ = 50 → 100 px</h2></div>
+
+<div class="info-box"><strong>Acc_s</strong> uses threshold <strong>δ = 100 px</strong> (on 1920×1080, ≈5.2% of frame width) when no segmentation mask is available. We ablate δ from 100 to 150 px to verify that rankings and conclusions are not sensitive to this choice.</div>
+
+<div class="formula-box">
+  Acc_s(k) = 1  if  ‖pred_pixel − gt_center‖₂ &lt; δ  else  0  &nbsp; [when mask unavailable; δ=50 default]<br>
+  When mask IS available: Acc_s(k) = 1 if pred_pixel ∈ mask_region
+</div>
+
+<div class="card">
+  <h3>Acc_s vs. Threshold δ (px)</h3>
+  <div id="thresholdChart" style="height:440px" class="chart-container"></div>
+  <p style="font-size:11.5px;color:var(--slate-400);margin-top:8px;text-align:center">Model rankings are strictly preserved across all tested thresholds (δ=100–150 px). Gemini-3-Flash consistently leads on Acc_s.</p>
+</div>
+
+<div class="card">
+  <h3>Δ Acc_s relative to δ=100 baseline</h3>
+  <div class="table-scroll">
+  <table>
+    <thead><tr><th>Model</th><th>δ=100 (base)</th><th>δ=110</th><th>Δ110</th><th>δ=120</th><th>Δ120</th><th>δ=130</th><th>Δ130</th><th>δ=140</th><th>Δ140</th><th>δ=150</th><th>Δ150</th></tr></thead>
+    <tbody><tr><td>Gemini-3-Pro</td><td><strong>33.9</strong></td><td>33.9</td><td><span class="delta-badge delta-pos">+0.0</span></td><td>33.9</td><td><span class="delta-badge delta-pos">+0.0</span></td><td>33.9</td><td><span class="delta-badge delta-pos">+0.0</span></td><td>33.9</td><td><span class="delta-badge delta-pos">+0.0</span></td><td>33.9</td><td><span class="delta-badge delta-pos">+0.0</span></td></tr>
+<tr><td>Gemini-3-Flash</td><td><strong>44.6</strong></td><td>44.6</td><td><span class="delta-badge delta-pos">+0.0</span></td><td>44.6</td><td><span class="delta-badge delta-pos">+0.0</span></td><td>44.6</td><td><span class="delta-badge delta-pos">+0.0</span></td><td>44.6</td><td><span class="delta-badge delta-pos">+0.0</span></td><td>44.6</td><td><span class="delta-badge delta-pos">+0.0</span></td></tr>
+<tr><td>Qwen3-Omni-30B-A3B</td><td><strong>6.2</strong></td><td>6.8</td><td><span class="delta-badge delta-pos">+0.6</span></td><td>7.4</td><td><span class="delta-badge delta-pos">+1.2</span></td><td>8.4</td><td><span class="delta-badge delta-pos">+2.2</span></td><td>9.5</td><td><span class="delta-badge delta-pos">+3.3</span></td><td>10.0</td><td><span class="delta-badge delta-pos">+3.8</span></td></tr>
+<tr><td>Qwen3-VL-30B</td><td><strong>30.2</strong></td><td>30.2</td><td><span class="delta-badge delta-pos">+0.0</span></td><td>30.2</td><td><span class="delta-badge delta-pos">+0.0</span></td><td>30.2</td><td><span class="delta-badge delta-pos">+0.0</span></td><td>30.2</td><td><span class="delta-badge delta-pos">+0.0</span></td><td>30.2</td><td><span class="delta-badge delta-pos">+0.0</span></td></tr>
+</tbody>
+  </table>
+  </div>
+</div>
+
+<div class="success-box"><strong>Conclusion:</strong> Relative model rankings and inter-model gaps are <strong>rank-consistent</strong> as δ varies from 100 to 150 px. Absolute values increase uniformly but relative ordering is preserved. Benchmark conclusions are robust to threshold choice.</div>
+</section>
+
+<!-- ═══════════════════════ §5 Statistics ═══════════════════════ -->
+<section class="section" id="sec5">
+<div class="section-header"><div class="section-number">5</div><h2>Extended Data Statistics</h2></div>
+
+<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px">
+  <div style="background:var(--slate-100);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--slate-700)"><strong>Acc_cls</strong>: Option classification (per-referent mean)</div>
+  <div style="background:var(--slate-100);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--slate-700)"><strong>Acc_s</strong>: Spatial grounding (mask-hit or dist &lt; δ=50px)</div>
+  <div style="background:var(--slate-100);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--slate-700)"><strong>Acc_t</strong>: Temporal grounding (pred timestamp ∈ ASR window)</div>
+  <div style="background:var(--slate-100);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--slate-700)"><strong>Acc_eco</strong>: cls ∧ s (∧ t for L2–L4)</div>
+  <div style="background:var(--slate-100);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--slate-700)"><strong>Acc_seq</strong>: All-or-nothing</div>
+</div>
+
+<!-- Main table -->
+<div class="card" style="padding:0;overflow:hidden">
+  <div style="padding:16px 20px 12px;border-bottom:1px solid var(--slate-100)"><h3 style="margin:0">Full Benchmark Results by Level</h3></div>
+  <div class="table-scroll">
+  <table>
+    <thead>
+      <tr>
+        <th rowspan="2" style="vertical-align:bottom;text-align:left;min-width:190px">Model</th>
+        <th colspan="3" class="col-a" style="border-bottom:2px solid #818cf8">L1 — Instruction 1</th>
+        <th colspan="3" class="col-b col-sep" style="border-bottom:2px solid #6d28d9">L2 — Instruction 2</th>
+        <th colspan="3" class="col-a col-sep" style="border-bottom:2px solid #818cf8">L3 — Instruction 3/4</th>
+        <th colspan="3" class="col-b col-sep" style="border-bottom:2px solid #6d28d9">L4 — Instruction 5/6</th>
+        <th colspan="3" class="col-a col-sep" style="border-bottom:2px solid #059669;background:#f0fdf4">Overall</th>
+      </tr>
+      <tr>
+        <th class="col-a">eco</th><th class="col-a">seq</th><th class="col-a">cls</th>
+        <th class="col-b col-sep">eco</th><th class="col-b">seq</th><th class="col-b">cls</th>
+        <th class="col-a col-sep">eco</th><th class="col-a">seq</th><th class="col-a">cls</th>
+        <th class="col-b col-sep">eco</th><th class="col-b">seq</th><th class="col-b">cls</th>
+        <th class="col-a col-sep" style="background:#f0fdf4">eco</th><th class="col-a" style="background:#f0fdf4">seq</th><th class="col-a" style="background:#f0fdf4">cls</th>
+      </tr>
+    </thead>
+    <tbody><tr class="group-header"><td colspan="16"><span class="gh-dot"></span>Native Omni Models — Proprietary</td></tr>
+<tr class="row-omni"><td>Gemini-3-Pro<span class="tag tag-prop" style="margin-left:4px;">Pro</span></td><td class="val-high col-a">30.2</td><td class="col-a">30.2</td><td class="col-a">79.9</td><td class="val-high col-b col-sep">29.2</td><td class="col-b">29.2</td><td class="col-b">71.5</td><td class="val-mid col-a col-sep">10.6</td><td class="col-a">1.8</td><td class="col-a">51.9</td><td class="val-mid col-b col-sep">10.2</td><td class="col-b">0.4</td><td class="col-b">64.5</td><td class="val-high col-a col-sep">17.0</td><td class="col-a">10.9</td><td class="col-a">63.9</td></tr>
+<tr class="row-omni"><td>Gemini-3-Flash<span class="tag tag-prop" style="margin-left:4px;">Pro</span></td><td class="val-mid col-a">12.2</td><td class="col-a">12.2</td><td class="col-a">71.2</td><td class="val-mid col-b col-sep">10.2</td><td class="col-b">10.2</td><td class="col-b">69.3</td><td class="val-low col-a col-sep">3.2</td><td class="col-a">0.7</td><td class="col-a">65.3</td><td class="val-mid col-b col-sep">6.6</td><td class="col-b">0.0</td><td class="col-b">79.5</td><td class="val-mid col-a col-sep">7.0</td><td class="col-a">4.1</td><td class="col-a">71.4</td></tr>
+<tr class="group-header"><td colspan="16"><span class="gh-dot"></span>Native Omni Models — Open-Source</td></tr>
+<tr class="row-omni"><td>Qwen3-Omni-Flash<span class="tag tag-open" style="margin-left:4px;">OS</span></td><td class="val-low col-a">2.9</td><td class="col-a">2.9</td><td class="col-a">59.7</td><td class="val-low col-b col-sep">0.7</td><td class="col-b">0.7</td><td class="col-b">66.4</td><td class="val-low col-a col-sep">0.2</td><td class="col-a">0.0</td><td class="col-a">40.5</td><td class="val-low col-b col-sep">0.0</td><td class="col-b">0.0</td><td class="col-b">37.2</td><td class="val-low col-a col-sep">0.7</td><td class="col-a">0.6</td><td class="col-a">47.1</td></tr>
+<tr class="row-omni"><td>Ming-Lite-Omni 1.5<span class="tag tag-open" style="margin-left:4px;">OS</span></td><td class="val-low col-a">0.0</td><td class="col-a">0.0</td><td class="col-a">30.2</td><td class="val-low col-b col-sep">0.0</td><td class="col-b">0.0</td><td class="col-b">31.4</td><td class="val-low col-a col-sep">0.0</td><td class="col-a">0.0</td><td class="col-a">13.9</td><td class="val-low col-b col-sep">0.0</td><td class="col-b">0.0</td><td class="col-b">5.0</td><td class="val-low col-a col-sep">0.0</td><td class="col-a">0.0</td><td class="col-a">16.9</td></tr>
+<tr class="row-omni"><td>MiniCPM-o 4.5<span class="tag tag-open" style="margin-left:4px;">OS</span></td><td class="val-low col-a">0.0</td><td class="col-a">0.0</td><td class="col-a">40.3</td><td class="val-low col-b col-sep">0.0</td><td class="col-b">0.0</td><td class="col-b">43.1</td><td class="val-low col-a col-sep">0.0</td><td class="col-a">0.0</td><td class="col-a">29.2</td><td class="val-low col-b col-sep">0.0</td><td class="col-b">0.0</td><td class="col-b">23.4</td><td class="val-low col-a col-sep">0.0</td><td class="col-a">0.0</td><td class="col-a">31.7</td></tr>
+<tr class="row-omni"><td>Qwen3-Omni-30B-A3B<span class="tag tag-open" style="margin-left:4px;">OS</span></td><td class="val-low col-a">3.6</td><td class="col-a">3.6</td><td class="col-a">40.3</td><td class="val-low col-b col-sep">0.7</td><td class="col-b">0.7</td><td class="col-b">48.9</td><td class="val-low col-a col-sep">0.0</td><td class="col-a">0.0</td><td class="col-a">23.9</td><td class="val-low col-b col-sep">0.0</td><td class="col-b">0.0</td><td class="col-b">19.1</td><td class="val-low col-a col-sep">0.7</td><td class="col-a">0.7</td><td class="col-a">29.5</td></tr>
+<tr class="group-header"><td colspan="16"><span class="gh-dot"></span>Vision-Language Models — Proprietary</td></tr>
+<tr class="row-vl"><td>GPT-5<span class="tag tag-prop" style="margin-left:4px;">Pro</span></td><td class="val-placeholder col-a">–</td><td class="val-placeholder col-a">–</td><td class="val-placeholder col-a">–</td><td class="val-placeholder col-b col-sep">–</td><td class="val-placeholder col-b col-sep">–</td><td class="val-placeholder col-b col-sep">–</td><td class="val-placeholder col-a col-sep">–</td><td class="val-placeholder col-a col-sep">–</td><td class="val-placeholder col-a col-sep">–</td><td class="val-placeholder col-b col-sep">–</td><td class="val-placeholder col-b col-sep">–</td><td class="val-placeholder col-b col-sep">–</td><td class="val-placeholder col-a col-sep">–</td><td class="val-placeholder col-a col-sep">–</td><td class="val-placeholder col-a col-sep">–</td></tr>
+<tr class="row-vl"><td>GPT-5-mini<span class="tag tag-prop" style="margin-left:4px;">Pro</span></td><td class="val-mid col-a">5.0</td><td class="col-a">5.0</td><td class="col-a">74.8</td><td class="val-low col-b col-sep">2.9</td><td class="col-b">2.9</td><td class="col-b">56.9</td><td class="val-low col-a col-sep">2.8</td><td class="col-a">0.4</td><td class="col-a">38.4</td><td class="val-low col-b col-sep">3.2</td><td class="col-b">0.0</td><td class="col-b">47.3</td><td class="val-low col-a col-sep">3.3</td><td class="col-a">1.5</td><td class="col-a">50.5</td></tr>
+<tr class="group-header"><td colspan="16"><span class="gh-dot"></span>Vision-Language Models — Open-Source</td></tr>
+<tr class="row-vl"><td>LLaVA-OV-1.5-8B<span class="tag tag-open" style="margin-left:4px;">OS</span></td><td class="val-low col-a">0.0</td><td class="col-a">0.0</td><td class="col-a">17.3</td><td class="val-low col-b col-sep">1.5</td><td class="col-b">1.5</td><td class="col-b">14.6</td><td class="val-low col-a col-sep">0.2</td><td class="col-a">0.0</td><td class="col-a">23.1</td><td class="val-low col-b col-sep">0.1</td><td class="col-b">0.0</td><td class="col-b">15.2</td><td class="val-low col-a col-sep">0.3</td><td class="col-a">0.2</td><td class="col-a">18.2</td></tr>
+<tr class="row-vl"><td>LLaVA-NeXT-Video-7B<span class="tag tag-open" style="margin-left:4px;">OS</span></td><td class="val-low col-a">0.0</td><td class="col-a">0.0</td><td class="col-a">18.7</td><td class="val-low col-b col-sep">0.0</td><td class="col-b">0.0</td><td class="col-b">11.7</td><td class="val-low col-a col-sep">0.0</td><td class="col-a">0.0</td><td class="col-a">13.4</td><td class="val-low col-b col-sep">0.0</td><td class="col-b">0.0</td><td class="col-b">4.6</td><td class="val-low col-a col-sep">0.0</td><td class="col-a">0.0</td><td class="col-a">11.3</td></tr>
+<tr class="row-vl"><td>Qwen3-VL-8B<span class="tag tag-open" style="margin-left:4px;">OS</span></td><td class="val-high col-a">21.6</td><td class="col-a">21.6</td><td class="col-a">66.9</td><td class="val-high col-b col-sep">16.1</td><td class="col-b">16.1</td><td class="col-b">59.9</td><td class="val-low col-a col-sep">4.4</td><td class="col-a">0.4</td><td class="col-a">32.7</td><td class="val-low col-b col-sep">2.7</td><td class="col-b">0.0</td><td class="col-b">30.5</td><td class="val-mid col-a col-sep">8.8</td><td class="col-a">6.5</td><td class="col-a">42.5</td></tr>
+<tr class="row-vl"><td>Qwen3-VL-30B<span class="tag tag-open" style="margin-left:4px;">OS</span></td><td class="val-high col-a">18.0</td><td class="col-a">18.0</td><td class="col-a">64.0</td><td class="val-high col-b col-sep">19.7</td><td class="col-b">19.7</td><td class="col-b">60.6</td><td class="val-mid col-a col-sep">8.5</td><td class="col-a">0.7</td><td class="col-a">34.3</td><td class="val-mid col-b col-sep">6.6</td><td class="col-b">0.0</td><td class="col-b">25.6</td><td class="val-mid col-a col-sep">11.4</td><td class="col-a">6.7</td><td class="col-a">41.2</td></tr>
+</tbody>
+  </table>
+  </div>
+</div>
+
+<!-- Detailed 5-metric table -->
+<div class="card" style="padding:0;overflow:hidden;margin-top:20px">
+  <div style="padding:16px 20px 12px;border-bottom:1px solid var(--slate-100)">
+    <h3 style="margin:0">Detailed Per-Level Breakdown — All 5 Metrics</h3>
+  </div>
+  <div class="table-scroll">
+  <table>
+    <thead>
+      <tr>
+        <th rowspan="2" style="text-align:left;min-width:170px">Model</th>
+        <th colspan="5" class="col-a" style="border-bottom:2px solid #818cf8">L1 — Instruction 1</th>
+        <th colspan="5" class="col-b col-sep" style="border-bottom:2px solid #6d28d9">L2 — Instruction 2</th>
+        <th colspan="5" class="col-a col-sep" style="border-bottom:2px solid #818cf8">L3 — Instruction 3/4</th>
+        <th colspan="5" class="col-b col-sep" style="border-bottom:2px solid #6d28d9">L4 — Instruction 5/6</th>
+      </tr>
+      <tr>
+        <th class="col-a">cls</th><th class="col-a">s</th><th class="col-a">t</th><th class="col-a">eco</th><th class="col-a">seq</th>
+        <th class="col-b col-sep">cls</th><th class="col-b">s</th><th class="col-b">t</th><th class="col-b">eco</th><th class="col-b">seq</th>
+        <th class="col-a col-sep">cls</th><th class="col-a">s</th><th class="col-a">t</th><th class="col-a">eco</th><th class="col-a">seq</th>
+        <th class="col-b col-sep">cls</th><th class="col-b">s</th><th class="col-b">t</th><th class="col-b">eco</th><th class="col-b">seq</th>
+      </tr>
+    </thead>
+    <tbody><tr class="group-header"><td colspan="21"><span class="gh-dot"></span>Omni Models</td></tr>
+<tr class="row-omni"><td>Gemini-3-Pro</td><td class="col-a">79.9</td><td class="col-a">40.3</td><td class="col-a">80.6</td><td class="val-high col-a">30.2</td><td class="col-a">30.2</td><td class="col-b col-sep">71.5</td><td class="col-b">41.6</td><td class="col-b">76.6</td><td class="val-high col-b">29.2</td><td class="col-b">29.2</td><td class="col-a col-sep">51.9</td><td class="col-a">29.8</td><td class="col-a">51.2</td><td class="val-mid col-a">10.6</td><td class="col-a">1.8</td><td class="col-b col-sep">64.5</td><td class="col-b">30.9</td><td class="col-b">38.1</td><td class="val-mid col-b">10.2</td><td class="col-b">0.4</td></tr>
+<tr class="row-omni"><td>Gemini-3-Flash</td><td class="col-a">71.2</td><td class="col-a">46.8</td><td class="col-a">27.3</td><td class="val-mid col-a">12.2</td><td class="col-a">12.2</td><td class="col-b col-sep">69.3</td><td class="col-b">46.0</td><td class="col-b">27.7</td><td class="val-mid col-b">10.2</td><td class="col-b">10.2</td><td class="col-a col-sep">65.3</td><td class="col-a">42.1</td><td class="col-a">12.7</td><td class="val-low col-a">3.2</td><td class="col-a">0.7</td><td class="col-b col-sep">79.5</td><td class="col-b">45.7</td><td class="col-b">17.7</td><td class="val-mid col-b">6.6</td><td class="col-b">0.0</td></tr>
+<tr class="row-omni"><td>Qwen3-Omni-Flash</td><td class="col-a">59.7</td><td class="col-a">26.6</td><td class="col-a">8.6</td><td class="val-low col-a">2.9</td><td class="col-a">2.9</td><td class="col-b col-sep">66.4</td><td class="col-b">28.5</td><td class="col-b">7.3</td><td class="val-low col-b">0.7</td><td class="col-b">0.7</td><td class="col-a col-sep">40.5</td><td class="col-a">16.0</td><td class="col-a">1.6</td><td class="val-low col-a">0.2</td><td class="col-a">0.0</td><td class="col-b col-sep">37.2</td><td class="col-b">12.9</td><td class="col-b">0.5</td><td class="val-low col-b">0.0</td><td class="col-b">0.0</td></tr>
+<tr class="row-omni"><td>Ming-Lite-Omni 1.5</td><td class="col-a">30.2</td><td class="col-a">3.6</td><td class="col-a">0.0</td><td class="val-low col-a">0.0</td><td class="col-a">0.0</td><td class="col-b col-sep">31.4</td><td class="col-b">5.8</td><td class="col-b">1.5</td><td class="val-low col-b">0.0</td><td class="col-b">0.0</td><td class="col-a col-sep">13.9</td><td class="col-a">1.9</td><td class="col-a">0.5</td><td class="val-low col-a">0.0</td><td class="col-a">0.0</td><td class="col-b col-sep">5.0</td><td class="col-b">0.5</td><td class="col-b">0.0</td><td class="val-low col-b">0.0</td><td class="col-b">0.0</td></tr>
+<tr class="row-omni"><td>MiniCPM-o 4.5</td><td class="col-a">40.3</td><td class="col-a">1.4</td><td class="col-a">2.2</td><td class="val-low col-a">0.0</td><td class="col-a">0.0</td><td class="col-b col-sep">43.1</td><td class="col-b">2.2</td><td class="col-b">1.5</td><td class="val-low col-b">0.0</td><td class="col-b">0.0</td><td class="col-a col-sep">29.2</td><td class="col-a">1.2</td><td class="col-a">0.0</td><td class="val-low col-a">0.0</td><td class="col-a">0.0</td><td class="col-b col-sep">23.4</td><td class="col-b">0.7</td><td class="col-b">0.1</td><td class="val-low col-b">0.0</td><td class="col-b">0.0</td></tr>
+<tr class="row-omni"><td>Qwen3-Omni-30B-A3B</td><td class="col-a">40.3</td><td class="col-a">12.2</td><td class="col-a">9.4</td><td class="val-low col-a">3.6</td><td class="col-a">3.6</td><td class="col-b col-sep">48.9</td><td class="col-b">7.3</td><td class="col-b">6.6</td><td class="val-low col-b">0.7</td><td class="col-b">0.7</td><td class="col-a col-sep">23.9</td><td class="col-a">3.7</td><td class="col-a">1.9</td><td class="val-low col-a">0.0</td><td class="col-a">0.0</td><td class="col-b col-sep">19.1</td><td class="col-b">3.6</td><td class="col-b">0.7</td><td class="val-low col-b">0.0</td><td class="col-b">0.0</td></tr>
+<tr class="group-header"><td colspan="21"><span class="gh-dot"></span>Vision-Language Models</td></tr>
+<tr class="row-vl"><td>GPT-5</td><td class="val-placeholder col-a">–</td><td class="val-placeholder col-a">–</td><td class="val-placeholder col-a">–</td><td class="val-placeholder col-a">–</td><td class="val-placeholder col-a">–</td><td class="val-placeholder col-b col-sep">–</td><td class="val-placeholder col-b col-sep">–</td><td class="val-placeholder col-b col-sep">–</td><td class="val-placeholder col-b col-sep">–</td><td class="val-placeholder col-b col-sep">–</td><td class="val-placeholder col-a col-sep">–</td><td class="val-placeholder col-a col-sep">–</td><td class="val-placeholder col-a col-sep">–</td><td class="val-placeholder col-a col-sep">–</td><td class="val-placeholder col-a col-sep">–</td><td class="val-placeholder col-b col-sep">–</td><td class="val-placeholder col-b col-sep">–</td><td class="val-placeholder col-b col-sep">–</td><td class="val-placeholder col-b col-sep">–</td><td class="val-placeholder col-b col-sep">–</td></tr>
+<tr class="row-vl"><td>GPT-5-mini</td><td class="col-a">74.8</td><td class="col-a">7.2</td><td class="col-a">84.9</td><td class="val-mid col-a">5.0</td><td class="col-a">5.0</td><td class="col-b col-sep">56.9</td><td class="col-b">5.8</td><td class="col-b">68.6</td><td class="val-low col-b">2.9</td><td class="col-b">2.9</td><td class="col-a col-sep">38.4</td><td class="col-a">5.8</td><td class="col-a">58.3</td><td class="val-low col-a">2.8</td><td class="col-a">0.4</td><td class="col-b col-sep">47.3</td><td class="col-b">5.6</td><td class="col-b">54.9</td><td class="val-low col-b">3.2</td><td class="col-b">0.0</td></tr>
+<tr class="row-vl"><td>LLaVA-OV-1.5-8B</td><td class="col-a">17.3</td><td class="col-a">2.9</td><td class="col-a">23.7</td><td class="val-low col-a">0.0</td><td class="col-a">0.0</td><td class="col-b col-sep">14.6</td><td class="col-b">2.2</td><td class="col-b">81.0</td><td class="val-low col-b">1.5</td><td class="col-b">1.5</td><td class="col-a col-sep">23.1</td><td class="col-a">2.3</td><td class="col-a">27.5</td><td class="val-low col-a">0.2</td><td class="col-a">0.0</td><td class="col-b col-sep">15.2</td><td class="col-b">2.3</td><td class="col-b">17.3</td><td class="val-low col-b">0.1</td><td class="col-b">0.0</td></tr>
+<tr class="row-vl"><td>LLaVA-NeXT-Video-7B</td><td class="col-a">18.7</td><td class="col-a">0.0</td><td class="col-a">0.7</td><td class="val-low col-a">0.0</td><td class="col-a">0.0</td><td class="col-b col-sep">11.7</td><td class="col-b">0.0</td><td class="col-b">5.8</td><td class="val-low col-b">0.0</td><td class="col-b">0.0</td><td class="col-a col-sep">13.4</td><td class="col-a">0.2</td><td class="col-a">1.2</td><td class="val-low col-a">0.0</td><td class="col-a">0.0</td><td class="col-b col-sep">4.6</td><td class="col-b">0.0</td><td class="col-b">0.5</td><td class="val-low col-b">0.0</td><td class="col-b">0.0</td></tr>
+<tr class="row-vl"><td>Qwen3-VL-8B</td><td class="col-a">66.9</td><td class="col-a">29.5</td><td class="col-a">74.1</td><td class="val-high col-a">21.6</td><td class="col-a">21.6</td><td class="col-b col-sep">59.9</td><td class="col-b">25.5</td><td class="col-b">66.4</td><td class="val-high col-b">16.1</td><td class="col-b">16.1</td><td class="col-a col-sep">32.7</td><td class="col-a">13.6</td><td class="col-a">46.5</td><td class="val-low col-a">4.4</td><td class="col-a">0.4</td><td class="col-b col-sep">30.5</td><td class="col-b">11.9</td><td class="col-b">29.3</td><td class="val-low col-b">2.7</td><td class="col-b">0.0</td></tr>
+<tr class="row-vl"><td>Qwen3-VL-30B</td><td class="col-a">64.0</td><td class="col-a">48.2</td><td class="col-a">52.5</td><td class="val-high col-a">18.0</td><td class="col-a">18.0</td><td class="col-b col-sep">60.6</td><td class="col-b">46.7</td><td class="col-b">47.4</td><td class="val-high col-b">19.7</td><td class="col-b">19.7</td><td class="col-a col-sep">34.3</td><td class="col-a">23.8</td><td class="col-a">34.0</td><td class="val-mid col-a">8.5</td><td class="col-a">0.7</td><td class="col-b col-sep">25.6</td><td class="col-b">18.5</td><td class="col-b">26.3</td><td class="val-mid col-b">6.6</td><td class="col-b">0.0</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<!-- Failure Bottleneck Chart (Omni Models only) -->
+<div class="card" style="margin-top:20px;padding:16px 20px">
+  <div style="display:flex;align-items:flex-start;gap:0">
+    <div style="flex:1;min-width:0">
+      <h3 style="margin:0 0 4px">Failure Bottleneck — Omni Models</h3>
+      <p style="margin:0 0 8px;font-size:12px;color:var(--slate-500)">
+        Each failure sample classified into one of 4 mutually exclusive categories based on which sub-metrics fail.
+        Bars show percentage of <em>failing</em> samples per model.
+      </p>
+      <div id="failureBottleneckChart" style="height:380px" class="chart-container"></div>
+    </div>
+    <div style="width:200px;flex-shrink:0;padding:36px 0 0 16px;border-left:1px solid var(--slate-100);margin-left:16px">
+      <div style="font-size:11px;font-weight:600;color:var(--slate-400);letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px">Legend</div>
+      <div style="display:flex;flex-direction:column;gap:8px;font-size:12px">
+        <div style="display:flex;align-items:flex-start;gap:8px">
+          <span style="display:inline-block;width:12px;height:12px;border-radius:2px;background:#a855f7;flex-shrink:0;margin-top:1px"></span>
+          <div><strong>Only-C (What)</strong><br><span style="color:var(--slate-500)">(0,1,1) — classification fails only</span></div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:8px">
+          <span style="display:inline-block;width:12px;height:12px;border-radius:2px;background:#f59e0b;flex-shrink:0;margin-top:1px"></span>
+          <div><strong>Only-S (Where)</strong><br><span style="color:var(--slate-500)">(1,0,1) — spatial fails only</span></div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:8px">
+          <span style="display:inline-block;width:12px;height:12px;border-radius:2px;background:#10b981;flex-shrink:0;margin-top:1px"></span>
+          <div><strong>Only-T (When)</strong><br><span style="color:var(--slate-500)">(1,1,0) — temporal fails only</span></div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:8px">
+          <span style="display:inline-block;width:12px;height:12px;border-radius:2px;background:#ef4444;flex-shrink:0;margin-top:1px"></span>
+          <div><strong>Joint (≥2)</strong><br><span style="color:var(--slate-500)">(0,0,1)/(0,1,0)/(1,0,0)/(0,0,0) — multiple metrics fail</span></div>
+        </div>
+      </div>
+      <div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--slate-100);font-size:11px;color:var(--slate-400)">
+        <code style="font-size:10px">c<sub>i</sub> = 𝟙[cls✓]</code><br>
+        <code style="font-size:10px">s<sub>i</sub> = 𝟙[spatial✓]</code><br>
+        <code style="font-size:10px">t<sub>i</sub> = 𝟙[temporal✓]</code>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Charts row -->
+<div class="three-col">
+  <div class="card" style="margin:0"><h3>Component Metrics (Overall)</h3><div id="componentChart" style="height:360px" class="chart-container"></div></div>
+  <div class="card" style="margin:0"><h3>Acc_eco by Scene Domain</h3><div id="sceneChart" style="height:360px" class="chart-container"></div></div>
+  <div class="card" style="margin:0"><h3>Acc_s by Object Size</h3><div id="objSizeChart" style="height:360px" class="chart-container"></div></div>
+</div>
+
+<!-- Object size table -->
+<div class="card">
+  <h3>Performance by Object Size (Acc_eco / Acc_s, %)</h3>
+  <div class="table-scroll">
+  <table>
+    <thead>
+      <tr>
+        <th>Model</th>
+        <th colspan="2" class="col-a" style="border-bottom:2px solid #818cf8">Small (&lt;0.5%, n=289)</th>
+        <th colspan="2" class="col-b col-sep" style="border-bottom:2px solid #6d28d9">Medium (0.5–2%, n=251)</th>
+        <th colspan="2" class="col-a col-sep" style="border-bottom:2px solid #818cf8">Large (≥2%, n=47)</th>
+      </tr>
+      <tr>
+        <th></th>
+        <th class="col-a">Acc_eco</th><th class="col-a">Acc_s</th>
+        <th class="col-b col-sep">Acc_eco</th><th class="col-b">Acc_s</th>
+        <th class="col-a col-sep">Acc_eco</th><th class="col-a">Acc_s</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="row-omni"><td>Gemini-3-Pro</td><td class="val-low col-a">3.0</td><td class="col-a">8.7</td><td class="val-mid col-b col-sep">16.9</td><td class="col-b">27.7</td><td class="val-mid col-a col-sep">16.0</td><td class="col-a">24.0</td></tr>
+      <tr class="row-omni"><td>Gemini-3-Flash</td><td class="val-low col-a">2.6</td><td class="col-a">12.2</td><td class="val-mid col-b col-sep">14.0</td><td class="col-b">34.8</td><td class="val-mid col-a col-sep">18.6</td><td class="col-a">36.5</td></tr>
+      <tr class="row-vl"><td>Qwen3-VL-30B</td><td class="val-low col-a">4.0</td><td class="col-a">14.4</td><td class="val-mid col-b col-sep">13.2</td><td class="col-b">23.8</td><td class="val-mid col-a col-sep">17.2</td><td class="col-a">28.5</td></tr>
+      <tr class="row-omni"><td>Qwen3-Omni-Flash</td><td class="val-low col-a">0.7</td><td class="col-a">6.3</td><td class="val-low col-b col-sep">2.9</td><td class="col-b">14.5</td><td class="val-low col-a col-sep">7.3</td><td class="col-a">19.2</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+</section>
+
+<!-- ═══════════════ §5b Images+ASR vs Native Video-Omni ══════════ -->
+<section class="section" id="sec5b">
+<div class="section-header"><div class="section-number">5b</div><h2>Input Modality Comparison — Images+ASR vs. Native Video-Omni</h2></div>
+
+<div class="info-box">
+  <strong>Motivation.</strong>
+  Native omni models receive the entire video stream end-to-end, yet this is not the only way to feed multimodal information.
+  An alternative pipeline extracts <strong>uniformly-sampled video frames</strong> (multi-image input) and passes the
+  <strong>ASR-transcribed text</strong> as a separate language context — bypassing continuous audio decoding entirely.
+  This section compares both input strategies on Gemini-3-Pro and Gemini-3-Flash to quantify whether
+  <em>images + ASR text</em> is a competitive substitute for — or superior alternative to — native omni video input.
+</div>
+
+<div class="warning-box" style="margin-bottom:18px">
+  <strong>Key Finding — Images+ASR Consistently Outperforms Native Video-Omni Input.</strong>
+  Across all metrics and both models, providing sampled frames plus ASR transcripts <em>dramatically</em> surpasses
+  the native video omni baseline.
+  Gemini-3-Flash improves Acc_eco from <strong>7.0 → 48.1%</strong> (+41.1 pp) and Gemini-3-Pro from
+  <strong>17.0 → 42.9%</strong> (+25.9 pp).
+  This suggests that current omni video processing introduces substantial information loss, whereas
+  explicit frame sampling + text ASR delivers a much richer signal for ego-centric grounding.
+</div>
+
+<div class="two-col" style="gap:16px;margin-bottom:16px">
+  <div>
+    <h4 style="margin:0 0 8px;font-size:13px;color:var(--slate-600)">Overall Metric Comparison (Images+ASR vs Native Video-Omni)</h4>
+    <div id="imagesAsrChart" style="height:400px" class="chart-container"></div>
+  </div>
+  <div>
+    <h4 style="margin:0 0 8px;font-size:13px;color:var(--slate-600)">Acc_eco Gain per Level (Δ = Img+ASR − Video-Omni, %)</h4>
+    <div id="imagesAsrDeltaChart" style="height:400px" class="chart-container"></div>
+  </div>
+</div>
+
+<div class="card">
+  <h3>Per-Level Detailed Comparison — Images+ASR vs. Native Video-Omni</h3>
+  <div class="table-scroll">
+  <table>
+    <thead>
+      <tr>
+        <th rowspan="2" style="text-align:left;min-width:180px">Model — Level</th>
+        <th colspan="3" class="col-a" style="border-bottom:2px solid #818cf8">Acc_cls (%)</th>
+        <th colspan="3" class="col-b col-sep" style="border-bottom:2px solid #6d28d9">Acc_s (%)</th>
+        <th colspan="3" class="col-a col-sep" style="border-bottom:2px solid #818cf8">Acc_t (%)</th>
+        <th colspan="3" class="col-b col-sep" style="border-bottom:2px solid #6d28d9">Acc_eco (%)</th>
+        <th colspan="3" class="col-a col-sep" style="border-bottom:2px solid #059669;background:#f0fdf4">Acc_seq (%)</th>
+      </tr>
+      <tr>
+        <th class="col-a">Img+ASR</th><th class="col-a">VideoOmni</th><th class="col-a">Δ</th>
+        <th class="col-b col-sep">Img+ASR</th><th class="col-b">VideoOmni</th><th class="col-b">Δ</th>
+        <th class="col-a col-sep">Img+ASR</th><th class="col-a">VideoOmni</th><th class="col-a">Δ</th>
+        <th class="col-b col-sep">Img+ASR</th><th class="col-b">VideoOmni</th><th class="col-b">Δ</th>
+        <th class="col-a col-sep" style="background:#f0fdf4">Img+ASR</th><th class="col-a" style="background:#f0fdf4">VideoOmni</th><th class="col-a" style="background:#f0fdf4">Δ</th>
+      </tr>
+    </thead>
+    <tbody><tr class="row-omni"><td>Gemini-3-Pro — L1</td><td class="val-high col-a">77.0</td><td class="col-a">79.9</td><td><span class="delta-badge delta-neg">-2.9</span></td><td class="val-high col-a">69.8</td><td class="col-a">40.3</td><td><span class="delta-badge delta-pos">+29.5</span></td><td class="val-high col-a">88.5</td><td class="col-a">80.6</td><td><span class="delta-badge delta-pos">+7.9</span></td><td class="val-high col-a">59.0</td><td class="col-a">30.2</td><td><span class="delta-badge delta-pos">+28.8</span></td><td class="val-high col-a">59.0</td><td class="col-a">30.2</td><td><span class="delta-badge delta-pos">+28.8</span></td></tr>
+<tr class="row-omni"><td>Gemini-3-Pro — L2</td><td class="val-high col-b col-sep">77.4</td><td class="col-b">71.5</td><td><span class="delta-badge delta-pos">+5.8</span></td><td class="val-high col-b">73.0</td><td class="col-b">41.6</td><td><span class="delta-badge delta-pos">+31.4</span></td><td class="val-high col-b">86.9</td><td class="col-b">76.6</td><td><span class="delta-badge delta-pos">+10.2</span></td><td class="val-high col-b">59.9</td><td class="col-b">29.2</td><td><span class="delta-badge delta-pos">+30.7</span></td><td class="val-high col-b">59.9</td><td class="col-b">29.2</td><td><span class="delta-badge delta-pos">+30.7</span></td></tr>
+<tr class="row-omni"><td>Gemini-3-Pro — L3</td><td class="val-high col-a col-sep">65.5</td><td class="col-a">51.9</td><td><span class="delta-badge delta-pos">+13.6</span></td><td class="val-high col-a">51.4</td><td class="col-a">29.8</td><td><span class="delta-badge delta-pos">+21.7</span></td><td class="val-high col-a">72.9</td><td class="col-a">51.2</td><td><span class="delta-badge delta-pos">+21.7</span></td><td class="val-high col-a">34.5</td><td class="col-a">10.6</td><td><span class="delta-badge delta-pos">+23.9</span></td><td class="val-mid col-a">11.6</td><td class="col-a">1.8</td><td><span class="delta-badge delta-pos">+9.9</span></td></tr>
+<tr class="row-omni"><td>Gemini-3-Pro — L4</td><td class="val-high col-b col-sep">71.2</td><td class="col-b">64.5</td><td><span class="delta-badge delta-pos">+6.7</span></td><td class="val-high col-b">47.7</td><td class="col-b">30.9</td><td><span class="delta-badge delta-pos">+16.8</span></td><td class="val-high col-b">68.4</td><td class="col-b">38.1</td><td><span class="delta-badge delta-pos">+30.3</span></td><td class="val-high col-b">34.2</td><td class="col-b">10.2</td><td><span class="delta-badge delta-pos">+24.0</span></td><td class="val-low col-b">4.0</td><td class="col-b">0.4</td><td><span class="delta-badge delta-pos">+3.6</span></td></tr>
+<tr class="row-omni" style="background:#f0fdf4;font-weight:600"><td><strong>Gemini-3-Pro — Ov.</strong></td><td class="val-high col-a col-sep"><strong>71.2</strong></td><td class="col-a"><strong>63.9</strong></td><td><span class="delta-badge delta-pos"><strong>+7.3</strong></span></td><td class="val-high col-a"><strong>57.1</strong></td><td class="col-a"><strong>33.9</strong></td><td><span class="delta-badge delta-pos"><strong>+23.1</strong></span></td><td class="val-high col-a"><strong>76.5</strong></td><td class="col-a"><strong>56.5</strong></td><td><span class="delta-badge delta-pos"><strong>+20.0</strong></span></td><td class="val-high col-a"><strong>42.9</strong></td><td class="col-a"><strong>17.0</strong></td><td><span class="delta-badge delta-pos"><strong>+25.9</strong></span></td><td class="val-high col-a"><strong>25.5</strong></td><td class="col-a"><strong>10.9</strong></td><td><span class="delta-badge delta-pos"><strong>+14.7</strong></span></td></tr>
+<tr class="row-omni"><td>Gemini-3-Flash — L1</td><td class="val-high col-a">87.8</td><td class="col-a">71.2</td><td><span class="delta-badge delta-pos">+16.5</span></td><td class="val-high col-a">73.4</td><td class="col-a">46.8</td><td><span class="delta-badge delta-pos">+26.6</span></td><td class="val-high col-a">94.2</td><td class="col-a">27.3</td><td><span class="delta-badge delta-pos">+66.9</span></td><td class="val-high col-a">66.9</td><td class="col-a">12.2</td><td><span class="delta-badge delta-pos">+54.7</span></td><td class="val-high col-a">66.9</td><td class="col-a">12.2</td><td><span class="delta-badge delta-pos">+54.7</span></td></tr>
+<tr class="row-omni"><td>Gemini-3-Flash — L2</td><td class="val-high col-b col-sep">86.9</td><td class="col-b">69.3</td><td><span class="delta-badge delta-pos">+17.5</span></td><td class="val-high col-b">75.2</td><td class="col-b">46.0</td><td><span class="delta-badge delta-pos">+29.2</span></td><td class="val-high col-b">91.2</td><td class="col-b">27.7</td><td><span class="delta-badge delta-pos">+63.5</span></td><td class="val-high col-b">65.7</td><td class="col-b">10.2</td><td><span class="delta-badge delta-pos">+55.5</span></td><td class="val-high col-b">65.7</td><td class="col-b">10.2</td><td><span class="delta-badge delta-pos">+55.5</span></td></tr>
+<tr class="row-omni"><td>Gemini-3-Flash — L3</td><td class="val-high col-a col-sep">71.3</td><td class="col-a">65.3</td><td><span class="delta-badge delta-pos">+6.0</span></td><td class="val-high col-a">62.1</td><td class="col-a">42.1</td><td><span class="delta-badge delta-pos">+20.1</span></td><td class="val-high col-a">77.1</td><td class="col-a">12.7</td><td><span class="delta-badge delta-pos">+64.4</span></td><td class="val-high col-a">40.0</td><td class="col-a">3.2</td><td><span class="delta-badge delta-pos">+36.8</span></td><td class="val-high col-a">17.6</td><td class="col-a">0.7</td><td><span class="delta-badge delta-pos">+16.9</span></td></tr>
+<tr class="row-omni"><td>Gemini-3-Flash — L4</td><td class="val-high col-b col-sep">82.3</td><td class="col-b">79.5</td><td><span class="delta-badge delta-pos">+2.8</span></td><td class="val-high col-b">51.7</td><td class="col-b">45.7</td><td><span class="delta-badge delta-pos">+6.0</span></td><td class="val-high col-b">75.0</td><td class="col-b">17.7</td><td><span class="delta-badge delta-pos">+57.3</span></td><td class="val-high col-b">37.3</td><td class="col-b">6.6</td><td><span class="delta-badge delta-pos">+30.7</span></td><td class="val-mid col-b">6.8</td><td class="col-b">0.0</td><td><span class="delta-badge delta-pos">+6.8</span></td></tr>
+<tr class="row-omni" style="background:#f0fdf4;font-weight:600"><td><strong>Gemini-3-Flash — Ov.</strong></td><td class="val-high col-a col-sep"><strong>80.1</strong></td><td class="col-a"><strong>71.4</strong></td><td><span class="delta-badge delta-pos"><strong>+8.7</strong></span></td><td class="val-high col-a"><strong>63.0</strong></td><td class="col-a"><strong>44.6</strong></td><td><span class="delta-badge delta-pos"><strong>+18.4</strong></span></td><td class="val-high col-a"><strong>81.8</strong></td><td class="col-a"><strong>19.3</strong></td><td><span class="delta-badge delta-pos"><strong>+62.5</strong></span></td><td class="val-high col-a"><strong>48.1</strong></td><td class="col-a"><strong>7.0</strong></td><td><span class="delta-badge delta-pos"><strong>+41.1</strong></span></td><td class="val-high col-a"><strong>30.8</strong></td><td class="col-a"><strong>4.1</strong></td><td><span class="delta-badge delta-pos"><strong>+26.8</strong></span></td></tr>
+<tr class="row-omni"><td>Qwen3-Omni-30B-A3B — L1</td><td class="val-high col-a">36.0</td><td class="col-a">40.3</td><td><span class="delta-badge delta-neg">-4.3</span></td><td class="val-mid col-a">10.1</td><td class="col-a">12.2</td><td><span class="delta-badge delta-neg">-2.2</span></td><td class="val-high col-a">31.7</td><td class="col-a">9.4</td><td><span class="delta-badge delta-pos">+22.3</span></td><td class="val-low col-a">2.9</td><td class="col-a">3.6</td><td><span class="delta-badge delta-neg">-0.7</span></td><td class="val-low col-a">2.9</td><td class="col-a">3.6</td><td><span class="delta-badge delta-neg">-0.7</span></td></tr>
+<tr class="row-omni"><td>Qwen3-Omni-30B-A3B — L2</td><td class="val-high col-b col-sep">29.9</td><td class="col-b">48.9</td><td><span class="delta-badge delta-neg">-19.0</span></td><td class="val-mid col-b">6.6</td><td class="col-b">7.3</td><td><span class="delta-badge delta-neg">-0.7</span></td><td class="val-high col-b">32.1</td><td class="col-b">6.6</td><td><span class="delta-badge delta-pos">+25.5</span></td><td class="val-low col-b">0.7</td><td class="col-b">0.7</td><td><span class="delta-badge delta-zero">+0.0</span></td><td class="val-low col-b">0.7</td><td class="col-b">0.7</td><td><span class="delta-badge delta-zero">+0.0</span></td></tr>
+<tr class="row-omni"><td>Qwen3-Omni-30B-A3B — L3</td><td class="val-mid col-a col-sep">13.2</td><td class="col-a">23.9</td><td><span class="delta-badge delta-neg">-10.7</span></td><td class="val-mid col-a">6.2</td><td class="col-a">3.7</td><td><span class="delta-badge delta-pos">+2.5</span></td><td class="val-mid col-a">7.9</td><td class="col-a">1.9</td><td><span class="delta-badge delta-pos">+6.0</span></td><td class="val-low col-a">0.0</td><td class="col-a">0.0</td><td><span class="delta-badge delta-zero">+0.0</span></td><td class="val-low col-a">0.0</td><td class="col-a">0.0</td><td><span class="delta-badge delta-zero">+0.0</span></td></tr>
+<tr class="row-omni"><td>Qwen3-Omni-30B-A3B — L4</td><td class="val-mid col-b col-sep">6.6</td><td class="col-b">19.1</td><td><span class="delta-badge delta-neg">-12.5</span></td><td class="val-low col-b">3.2</td><td class="col-b">3.6</td><td><span class="delta-badge delta-zero">-0.4</span></td><td class="val-low col-b">0.6</td><td class="col-b">0.7</td><td><span class="delta-badge delta-zero">-0.1</span></td><td class="val-low col-b">0.1</td><td class="col-b">0.0</td><td><span class="delta-badge delta-zero">+0.1</span></td><td class="val-low col-b">0.0</td><td class="col-b">0.0</td><td><span class="delta-badge delta-zero">+0.0</span></td></tr>
+<tr class="row-omni" style="background:#f0fdf4;font-weight:600"><td><strong>Qwen3-Omni-30B-A3B — Ov.</strong></td><td class="val-high col-a col-sep"><strong>17.9</strong></td><td class="col-a"><strong>29.5</strong></td><td><span class="delta-badge delta-neg"><strong>-11.6</strong></span></td><td class="val-mid col-a"><strong>6.0</strong></td><td class="col-a"><strong>5.7</strong></td><td><span class="delta-badge delta-zero"><strong>+0.3</strong></span></td><td class="val-mid col-a"><strong>13.8</strong></td><td class="col-a"><strong>3.6</strong></td><td><span class="delta-badge delta-pos"><strong>+10.2</strong></span></td><td class="val-low col-a"><strong>0.7</strong></td><td class="col-a"><strong>0.7</strong></td><td><span class="delta-badge delta-zero"><strong>-0.1</strong></span></td><td class="val-low col-a"><strong>0.6</strong></td><td class="col-a"><strong>0.7</strong></td><td><span class="delta-badge delta-zero"><strong>-0.1</strong></span></td></tr>
+<tr class="row-omni"><td>Qwen3-Omni-Flash — L1</td><td class="val-high col-a">32.4</td><td class="col-a">59.7</td><td><span class="delta-badge delta-neg">-27.3</span></td><td class="val-high col-a">18.7</td><td class="col-a">26.6</td><td><span class="delta-badge delta-neg">-7.9</span></td><td class="val-high col-a">21.6</td><td class="col-a">8.6</td><td><span class="delta-badge delta-pos">+12.9</span></td><td class="val-mid col-a">9.4</td><td class="col-a">2.9</td><td><span class="delta-badge delta-pos">+6.5</span></td><td class="val-mid col-a">9.4</td><td class="col-a">2.9</td><td><span class="delta-badge delta-pos">+6.5</span></td></tr>
+<tr class="row-omni"><td>Qwen3-Omni-Flash — L2</td><td class="val-high col-b col-sep">55.5</td><td class="col-b">66.4</td><td><span class="delta-badge delta-neg">-10.9</span></td><td class="val-high col-b">33.6</td><td class="col-b">28.5</td><td><span class="delta-badge delta-pos">+5.1</span></td><td class="val-high col-b">78.1</td><td class="col-b">7.3</td><td><span class="delta-badge delta-pos">+70.8</span></td><td class="val-high col-b">28.5</td><td class="col-b">0.7</td><td><span class="delta-badge delta-pos">+27.7</span></td><td class="val-high col-b">28.5</td><td class="col-b">0.7</td><td><span class="delta-badge delta-pos">+27.7</span></td></tr>
+<tr class="row-omni"><td>Qwen3-Omni-Flash — L3</td><td class="val-high col-a col-sep">29.9</td><td class="col-a">40.5</td><td><span class="delta-badge delta-neg">-10.6</span></td><td class="val-mid col-a">13.7</td><td class="col-a">16.0</td><td><span class="delta-badge delta-neg">-2.3</span></td><td class="val-high col-a">24.3</td><td class="col-a">1.6</td><td><span class="delta-badge delta-pos">+22.7</span></td><td class="val-mid col-a">5.1</td><td class="col-a">0.2</td><td><span class="delta-badge delta-pos">+4.9</span></td><td class="val-low col-a">0.4</td><td class="col-a">0.0</td><td><span class="delta-badge delta-zero">+0.4</span></td></tr>
+<tr class="row-omni"><td>Qwen3-Omni-Flash — L4</td><td class="val-high col-b col-sep">23.0</td><td class="col-b">37.2</td><td><span class="delta-badge delta-neg">-14.1</span></td><td class="val-mid col-b">13.0</td><td class="col-b">12.9</td><td><span class="delta-badge delta-zero">+0.1</span></td><td class="val-high col-b">16.5</td><td class="col-b">0.5</td><td><span class="delta-badge delta-pos">+16.0</span></td><td class="val-low col-b">3.5</td><td class="col-b">0.0</td><td><span class="delta-badge delta-pos">+3.5</span></td><td class="val-low col-b">0.0</td><td class="col-b">0.0</td><td><span class="delta-badge delta-zero">+0.0</span></td></tr>
+<tr class="row-omni" style="background:#f0fdf4;font-weight:600"><td><strong>Qwen3-Omni-Flash — Ov.</strong></td><td class="val-high col-a col-sep"><strong>32.5</strong></td><td class="col-a"><strong>47.1</strong></td><td><span class="delta-badge delta-neg"><strong>-14.6</strong></span></td><td class="val-high col-a"><strong>17.7</strong></td><td class="col-a"><strong>19.0</strong></td><td><span class="delta-badge delta-neg"><strong>-1.3</strong></span></td><td class="val-high col-a"><strong>30.5</strong></td><td class="col-a"><strong>3.4</strong></td><td><span class="delta-badge delta-pos"><strong>+27.1</strong></span></td><td class="val-mid col-a"><strong>9.3</strong></td><td class="col-a"><strong>0.7</strong></td><td><span class="delta-badge delta-pos"><strong>+8.6</strong></span></td><td class="val-mid col-a"><strong>6.5</strong></td><td class="col-a"><strong>0.6</strong></td><td><span class="delta-badge delta-pos"><strong>+5.9</strong></span></td></tr>
+</tbody>
+  </table>
+  </div>
+  <div class="two-col" style="margin-top:14px;gap:14px">
+    <div class="info-box" style="margin:0;font-size:12px">
+      <strong>Acc_cls &amp; Acc_s:</strong> Images+ASR substantially raises classification accuracy (Acc_cls +7–16 pp) and spatial grounding (Acc_s +13–29 pp) at every difficulty level.
+      Frame-level visual inspection is far more precise than compressed video representations for identifying fine-grained spatial targets.
+    </div>
+    <div class="warning-box" style="margin:0;font-size:12px">
+      <strong>Acc_t:</strong> The temporal gain (+20–62 pp) is even larger, indicating that ASR transcripts provide far more reliable speech-to-gesture alignment than the model's internal audio decoder operating on raw video streams.
+      This highlights a fundamental limitation in current omni video models: end-to-end audio decoding introduces temporal noise not present in explicit ASR pipelines.
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ═════════════ §5c Temporal Distribution Analysis ════════════ -->
+<section class="section" id="sec5c">
+<div class="section-header"><div class="section-number">5c</div><h2>Temporal Distribution Analysis — Stroke &amp; Predicted Timestamps</h2></div>
+
+<div class="info-box">
+  <strong>What We Measure.</strong>
+  Each annotated referent has a <em>gesture stroke window</em> [stroke_begin, stroke_end] and an <em>ASR word window</em> [asr_begin, asr_end].
+  Models must predict a <code>timestamp</code> that falls within the stroke window to earn Acc_t = 1.
+  This section visualises the GT stroke distribution and the timestamp predictions from all evaluated models.
+</div>
+
+<!-- Row 1: Stroke duration boxplot + Stroke position bar -->
+<div class="two-col" style="gap:16px;margin-bottom:16px">
+  <div class="card" style="margin:0">
+    <h3>Gesture Stroke Duration by Level (ms)</h3>
+    <p style="font-size:12px;color:var(--slate-500);margin-bottom:8px">Box: Q1–Q3 with median; whiskers: 5th/95th percentiles. Orange dot = mean.</p>
+    <div id="strokeDurChart" style="height:360px" class="chart-container"></div>
+  </div>
+  <div class="card" style="margin:0">
+    <h3>Stroke Timeline Position — by Stroke Index (mean ms, video start = 0)</h3>
+    <p style="font-size:12px;color:var(--slate-500);margin-bottom:8px">
+      Floating bars show average [stroke_begin → stroke_end] per stroke index (#1–#4).
+      Stroke #1 is the 1st gesture in the sequence; L3 has 2 strokes (#1–#2), L4 has 3–4 strokes (#1–#4).
+      Midpoint marker (●) = mean stroke midpoint.
+    </p>
+    <div id="strokePosChart" style="height:400px" class="chart-container"></div>
+  </div>
+</div>
+
+<!-- Row 2: Video-Omni timestamp boxplot by stroke index -->
+<div class="card" style="margin-bottom:16px">
+  <h3>Predicted Timestamp Distribution — Native Video-Omni Input (grouped by stroke index)</h3>
+  <p style="font-size:12px;color:var(--slate-500);margin-bottom:8px">
+    Each row = one (stroke index, model) pair. Rows are grouped by stroke index (#1 → #4) to show how
+    prediction accuracy degrades as the target gesture appears later in the sequence.
+    <span style="color:#059669;font-weight:600">Green rows = GT Stroke Midpoint</span> (ideal target for each index).
+  </p>
+  <div id="tsVideoChart" style="height:1100px" class="chart-container"></div>
+</div>
+
+<!-- Row 3: Images-input timestamp boxplot by stroke index -->
+<div class="card" style="margin-bottom:16px">
+  <h3>Predicted Timestamp Distribution — Multi-Image + ASR Text Input (grouped by stroke index)</h3>
+  <p style="font-size:12px;color:var(--slate-500);margin-bottom:8px">
+    Same layout as above but for the images+ASR input condition.
+    Compare stroke-by-stroke with the native video plot to see how explicit ASR timestamps help
+    across different sequence positions.
+  </p>
+  <div id="tsImagesChart" style="height:1100px" class="chart-container"></div>
+</div>
+
+<!-- Row 4: Mean predicted timestamp by level (video vs images) -->
+<div class="two-col" style="gap:16px">
+  <div class="card" style="margin:0">
+    <h3>Mean Predicted Timestamp by Level — Native Video Input</h3>
+    <p style="font-size:12px;color:var(--slate-500);margin-bottom:8px">Lines per model; dashed green = GT stroke midpoint mean.</p>
+    <div id="tsLevelVideoChart" style="height:380px" class="chart-container"></div>
+  </div>
+  <div class="card" style="margin:0">
+    <h3>Mean Predicted Timestamp by Level — Multi-Image Input</h3>
+    <p style="font-size:12px;color:var(--slate-500);margin-bottom:8px">Lines per model; dashed green = GT stroke midpoint mean.</p>
+    <div id="tsLevelImagesChart" style="height:380px" class="chart-container"></div>
+  </div>
+</div>
+
+</section>
+
+<!-- ══════════ §5d Sub-metric Decoupling & Bottleneck ══════════ -->
+<section class="section" id="sec5d">
+<div class="section-header"><div class="section-number">5d</div><h2>Sub-metric Decoupling &amp; Failure Bottleneck Analysis</h2></div>
+
+<div class="info-box">
+  <strong>Why Decouple Metrics?</strong>
+  Acc_eco requires cls ∧ s (∧ t for L2–L4) to all pass simultaneously — a strict conjunction.
+  A model may excel on one sub-task while collapsing on another, which a single aggregated score masks.
+  The charts below reveal these capability mismatches and identify where models systematically fail.
+</div>
+
+<!-- Sub-metric grouped bar -->
+<div class="card" style="margin-bottom:16px">
+  <h3>Sub-metric Performance Comparison — All Models (Overall, %)</h3>
+  <p style="font-size:12px;color:var(--slate-500);margin-bottom:8px">
+    Models sorted by Acc_eco (red bar). Note how Acc_t (green) and Acc_eco rankings diverge significantly —
+    e.g., GPT-5-mini achieves top-tier Acc_t yet bottom-tier Acc_eco, demonstrating the necessity of joint evaluation.
+  </p>
+  <div id="submetricChart" style="height:440px" class="chart-container"></div>
+</div>
+
+<!-- Heatmap full-width -->
+<div class="two-col" style="gap:16px">
+  <div class="card" style="margin:0;display:none"><div id="bottleneckChart" style="height:1px"></div></div>
+  <div class="card" style="margin:0;grid-column:1/-1">
+    <h3>Acc_eco Heatmap — Scene × Difficulty Level (%, all models averaged)</h3>
+    <p style="font-size:12px;color:var(--slate-500);margin-bottom:8px">
+      Darker cell = higher accuracy. Industrial scenes are consistently the hardest across all levels,
+      while L3/L4 (multi-referent) drops below 3.5% in all scenes.
+    </p>
+    <div id="heatmapChart" style="height:340px" class="chart-container"></div>
+    <div class="two-col" style="margin-top:12px;gap:10px">
+      <div class="info-box" style="margin:0;font-size:12px">
+        <strong>Industrial hardest:</strong> Dense, visually similar small objects (screws, workpieces) create maximal spatial confusion.
+        Kitchen/Office have larger, more distinctive targets.
+      </div>
+      <div class="warning-box" style="margin:0;font-size:12px">
+        <strong>L3/L4 plateau:</strong> Multi-step referent chaining requires correct identification of 2–4 objects in sequence — accuracy compounds multiplicatively, causing a sharp L2→L3 drop.
+      </div>
+    </div>
+  </div>
+</div>
+
+</section>
+
+<!-- ══════════ §5e Cross-Lingual Robustness & Timestamp Calibration ══════════ -->
+<section class="section" id="sec5e">
+<div class="section-header"><div class="section-number">5e</div><h2>Cross-Lingual Robustness &amp; Temporal Calibration Analysis</h2></div>
+
+<div class="info-box">
+  <strong>Two Key Generalization Axes.</strong>
+  (1) <strong>Cross-lingual:</strong> does performance hold when instructions switch from English to Chinese?
+  (2) <strong>Temporal calibration:</strong> how accurately do models predict <em>when</em> the gesture occurred?
+  These analyses expose biases invisible in the main Acc_eco table.
+</div>
+
+<!-- EN vs ZH lollipop + timestamp bias side by side -->
+<div class="two-col" style="gap:16px;margin-bottom:16px">
+  <div class="card" style="margin:0">
+    <h3>EN vs ZH Acc_eco per Model (%, all levels)</h3>
+    <p style="font-size:12px;color:var(--slate-500);margin-bottom:8px">
+      Each model shows EN (filled circle) and ZH (ring) scores with a connecting line.
+      <span style="color:#15803d;font-weight:600">Green = ZH &gt; EN</span> &nbsp;
+      <span style="color:#dc2626;font-weight:600">Red = ZH &lt; EN</span>
+    </p>
+    <div id="lollipopChart" style="height:400px" class="chart-container"></div>
+  </div>
+  <div class="card" style="margin:0">
+    <h3>Mean Timestamp Prediction Bias (pred − GT stroke midpoint, ms)</h3>
+    <p style="font-size:12px;color:var(--slate-500);margin-bottom:8px">
+      Negative = model predicts <em>earlier</em> than the actual gesture peak.
+      Video-input models show a systematic <strong>~2000ms early bias</strong>;
+      images+ASR input corrects this nearly to zero.
+    </p>
+    <div id="tsBiasChart" style="height:400px" class="chart-container"></div>
+  </div>
+</div>
+
+<!-- Calibration accuracy -->
+<div class="card">
+  <h3>Temporal Calibration Accuracy — within ±500ms and ±1000ms of GT Stroke Midpoint</h3>
+  <p style="font-size:12px;color:var(--slate-500);margin-bottom:8px">
+    Proportion of predictions that land within the tolerance window.
+    Video input: only 5–19% within ±500ms. Images+ASR: 44–67% within ±500ms — a <strong>7–8× improvement</strong>.
+  </p>
+  <div id="calAccChart" style="height:380px" class="chart-container"></div>
+  <div class="two-col" style="margin-top:12px;gap:14px">
+    <div class="warning-box" style="margin:0;font-size:12px">
+      <strong>Root cause of video input bias:</strong> Omni models process the audio stream end-to-end and anchor their timestamp estimate to <em>speech onset</em> rather than the gesture stroke peak.
+      Since speech begins before the pointing gesture, this produces a systematic early bias of ~2s.
+    </div>
+    <div class="success-box" style="margin:0;font-size:12px">
+      <strong>Why images+ASR fixes it:</strong> ASR transcripts provide <em>word-level timestamps</em> directly in the prompt context.
+      The model can ground its prediction to exact word boundaries, eliminating the audio decoding noise that causes the video input bias.
+    </div>
+  </div>
+</div>
+
+</section>
+
+<!-- ═══════════════════════ §6 Case Studies ═════════════════════ -->
+<section class="section" id="sec6">
+<div class="section-header"><div class="section-number">6</div><h2>Typical Failure Modes — Case Studies</h2></div>
+
+<div class="card" style="text-align: center; padding: 20px;">
+  <img src="case_study.png" alt="Case Study" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+</div>
+</section>
+
+<!-- ═══════════════════════ §7 Ethics ═══════════════════════════ -->
+<section class="section" id="sec7">
+<div class="section-header"><div class="section-number">7</div><h2>Limitations &amp; Broader Impact</h2></div>
+
+<div class="success-box"><strong>IRB &amp; Consent Statement:</strong> All video collection and human participant experiments were conducted under an IRB-approved protocol. Every participant provided informed written consent before any data collection. Participants were informed of their right to withdraw at any time without consequence.</div>
+
+<div class="two-col">
+  <div class="card">
+    <h3>🔒 Data Privacy Measures</h3>
+    <ul class="step-list">
+      <li><div class="step-num" style="background:var(--success)">✓</div><div class="step-content"><strong>Face Avoidance by Protocol</strong><p>No facial information appears in any released video. Participants were required to wear masks covering the nose and mouth during recording, and camera angles were arranged to exclude faces from the field of view throughout the entire data collection process.</p></div></li>
+      <li><div class="step-num" style="background:var(--success)">✓</div><div class="step-content"><strong>PII Removal</strong><p>Screens, whiteboards, nameplates, and badges visible in the scene were manually reviewed and redacted.</p></div></li>
+      <li><div class="step-num" style="background:var(--success)">✓</div><div class="step-content"><strong>Ego-centric Framing</strong><p>Recordings capture only the operator's hands and immediate task workspace, minimizing bystander capture.</p></div></li>
+      <li><div class="step-num" style="background:var(--success)">✓</div><div class="step-content"><strong>No Biometric Identity Data</strong><p>No participant names, IDs, or demographic attributes released. Voice-prints not annotated.</p></div></li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>⚠️ Limitations</h3>
+    <ul class="step-list">
+      <li><div class="step-num" style="background:var(--warning)">!</div><div class="step-content"><strong>Closed-World Option Set</strong><p>Options constructed from scene-visible objects. Open-world evaluation remains future work.</p></div></li>
+      <li><div class="step-num" style="background:var(--warning)">!</div><div class="step-content"><strong>Static Last-Frame Grounding</strong><p>Spatial coordinates evaluated against the final frame. Moving targets not explicitly handled.</p></div></li>
+      <li><div class="step-num" style="background:var(--warning)">!</div><div class="step-content"><strong>EN / ZH Only</strong><p>Multilingual extension left for future work.</p></div></li>
+      <li><div class="step-num" style="background:var(--warning)">!</div><div class="step-content"><strong>Fixed Head-mounted Camera</strong><p>Handheld or PTZ cameras may produce different gesture characteristics.</p></div></li>
+    </ul>
+  </div>
+</div>
+
+<div class="card">
+  <h3>🌍 Broader Impact</h3>
+  <p style="font-size:13px;color:var(--slate-600);margin-bottom:12px">EcoG-Bench accelerates research on <strong>multimodal human-robot interaction</strong> and <strong>embodied AI</strong>, providing a rigorous benchmark that jointly evaluates temporal, spatial, and semantic understanding.</p>
+  <p style="font-size:13px;color:var(--slate-600);margin-bottom:12px"><strong>Positive impacts:</strong> Improved robotics for manufacturing/kitchen tasks; lower barriers for non-expert operators; better evaluation methodology for the multimodal AI community.</p>
+  <p style="font-size:13px;color:var(--slate-600)"><strong>Risks:</strong> Ego-centric grounding could theoretically be misused for surveillance. Explicitly prohibited in the dataset license. Dataset contains no biometric identification data.</p>
+</div>
+
+<div class="page-footer">
+  <strong>Citation:</strong> If you use EcoG-Bench in your research, please cite our paper (BibTeX on project page).<br>
+  <strong>Regeneration:</strong> This HTML is auto-generated. Re-run <code>python analysis/generate_supplementary.py</code> after new evaluation runs to update all numbers.<br>
+  <strong>Data source:</strong> All quantitative results from <code>result-final/</code> via <code>analysis/extract_results.py</code> pipeline.
+</div>
+</section>
+
+</main>
+
+<button class="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+// Nav scroll highlight
+function scrollTo(id){document.getElementById(id)?.scrollIntoView({behavior:'smooth',block:'start'})}
+const sections=['sec0','sec1','sec2','sec3','sec4','sec5','sec5b','sec5c','sec5d','sec5e','sec6','sec7'];
+const navItems=document.querySelectorAll('.nav-item');
+window.addEventListener('scroll',()=>{
+  let c=0;
+  sections.forEach((id,i)=>{const el=document.getElementById(id);if(el&&window.scrollY+120>=el.offsetTop)c=i;});
+  navItems.forEach((it,i)=>it.classList.toggle('active',i===c));
+});
+
+// Prompt tabs
+function switchTab(id){
+  document.querySelectorAll('.prompt-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.prompt-pane').forEach(p=>p.classList.remove('active'));
+  document.querySelector(`[onclick="switchTab('${id}')"]`).classList.add('active');
+  document.getElementById('pane-'+id).classList.add('active');
+}
+
+// ── ECharts global defaults ─────────────────────────────────────
+const _DPR=Math.min(window.devicePixelRatio||1,3);
+function _init(el){return echarts.init(el,null,{devicePixelRatio:_DPR});}
+
+// ── Global style tokens ─────────────────────────────────────────
+const _FONT = '"Inter",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif';
+const _C = {
+  text:'#334155', textMid:'#475569', textFaint:'#94a3b8',
+  line:'#cbd5e1', tick:'#e2e8f0', grid:'#f1f5f9', gridD:'#e2e8f0',
+};
+// shared axis config objects
+const _AX_LABEL = {fontFamily:_FONT,fontSize:13,color:_C.textMid};
+const _AXIS = {
+  axisLabel:_AX_LABEL,
+  axisLine:{lineStyle:{color:_C.line}},
+  axisTick:{lineStyle:{color:_C.tick}},
+  splitLine:{lineStyle:{color:_C.grid,type:'solid'}}
+};
+const _AXIS_D = {..._AXIS, splitLine:{lineStyle:{color:_C.gridD,type:'dashed'}}};
+
+// tooltip
+const _TT = {
+  backgroundColor:'rgba(15,23,42,.93)',
+  borderColor:'rgba(255,255,255,.07)',borderWidth:1,
+  textStyle:{color:'#f1f5f9',fontSize:13,fontFamily:_FONT},
+  padding:[9,14],
+  extraCssText:'border-radius:10px;box-shadow:0 10px 28px rgba(0,0,0,.3)'
+};
+// legend
+const _LG = {
+  textStyle:{fontFamily:_FONT,fontSize:13,color:_C.textMid},
+  itemWidth:16,itemHeight:9,itemGap:14,icon:'roundRect'
+};
+// axis name style
+const _ANAME = {fontFamily:_FONT,fontSize:12,color:_C.textFaint,padding:[0,0,4,0]};
+// bar label on top
+const _BL_TOP = {show:true,position:'top',fontFamily:_FONT,fontSize:12,color:_C.textMid,
+  formatter:p=>p.value>0?p.value+'%':''};
+// bar label inside (white)
+const _BL_IN = (minPct=4)=>({show:true,position:'inside',fontFamily:_FONT,
+  fontSize:12,fontWeight:'600',color:'#fff',
+  formatter:p=>p.value>minPct?p.value+'%':''});
+
+// ── Charts ─────────────────────────────────────────────────────
+// Shared shadow-style for axisPointer
+const _AP = {type:'shadow',shadowStyle:{color:'rgba(0,0,0,.03)'}};
+
+// §0: Dataset distribution
+const datasetChart=_init(document.getElementById('datasetChart'));
+datasetChart.setOption({
+  tooltip:{..._TT,trigger:'axis',axisPointer:_AP},
+  legend:{..._LG,top:6,type:'scroll'},
+  grid:{top:52,bottom:40,left:56,right:20,containLabel:true},
+  xAxis:{..._AXIS,type:'category',data:["L1 (Instruction1)", "L2 (Instruction2)", "L3 (Instruction3/4)", "L4 (Instruction5/6)"],
+    axisLabel:{..._AX_LABEL,fontSize:13}},
+  yAxis:{..._AXIS_D,type:'value',name:'# Videos',nameTextStyle:_ANAME,
+    axisLabel:{..._AX_LABEL}},
+  series:[{name:'EN-Industrial',type:'bar',stack:'EN',data:[16, 15, 35, 9],itemStyle:{color:'#f59e0b',opacity:0.9} },
+        {name:'ZH-Industrial',type:'bar',stack:'ZH',data:[27, 22, 56, 51],itemStyle:{color:'#f59e0b',opacity:0.5,borderWidth:1,borderColor:'#fff'} },
+        {name:'EN-Kitchen',type:'bar',stack:'EN',data:[20, 20, 40, 39],itemStyle:{color:'#10b981',opacity:0.9} },
+        {name:'ZH-Kitchen',type:'bar',stack:'ZH',data:[20, 20, 40, 39],itemStyle:{color:'#10b981',opacity:0.5,borderWidth:1,borderColor:'#fff'} },
+        {name:'EN-Office',type:'bar',stack:'EN',data:[29, 30, 56, 58],itemStyle:{color:'#6366f1',opacity:0.9} },
+        {name:'ZH-Office',type:'bar',stack:'ZH',data:[27, 30, 57, 55],itemStyle:{color:'#6366f1',opacity:0.5,borderWidth:1,borderColor:'#fff'} }]
+});
+
+// §1: Size donut
+const sizeChart=_init(document.getElementById('sizeChart'));
+sizeChart.setOption({
+  tooltip:{..._TT,trigger:'item',
+    formatter:p=>`<b>${p.name}</b><br/>${p.value} videos (${p.percent.toFixed(1)}%)`},
+  series:[{type:'pie',radius:['40%','68%'],center:['50%','50%'],
+    itemStyle:{borderRadius:12,borderColor:'#fff',borderWidth:4},
+    label:{fontFamily:_FONT,fontSize:13,color:_C.textMid,
+      formatter:'{b}\n{c} ({d}%)'},
+    labelLine:{length:10,length2:12,lineStyle:{color:_C.textFaint}},
+    emphasis:{scale:true,scaleSize:8},
+    data:[
+      {value:289,name:'Small (<0.5%)',itemStyle:{color:'#f59e0b'}},
+      {value:251,name:'Medium (0.5–2%)',itemStyle:{color:'#6366f1'}},
+      {value:47,name:'Large (≥2%)',itemStyle:{color:'#10b981'}}
+    ]}]
+});
+
+// §4: Threshold line chart
+const threshChart=_init(document.getElementById('thresholdChart'));
+threshChart.setOption({
+  tooltip:{..._TT,trigger:'axis',
+    formatter:params=>`<b>δ = ${params[0].axisValue} px</b><br/>`+
+      params.map(p=>`${p.marker}<b>${p.seriesName}</b>: ${p.value}%`).join('<br/>')},
+  legend:{..._LG,top:6,type:'scroll'},
+  grid:{top:52,bottom:52,left:64,right:24,containLabel:true},
+  xAxis:{..._AXIS,type:'category',
+    name:'Threshold δ (px)',nameLocation:'middle',nameGap:34,nameTextStyle:_ANAME,
+    data:[100, 110, 120, 130, 140, 150]},
+  yAxis:{..._AXIS_D,type:'value',name:'Acc_s (%)',nameTextStyle:_ANAME,
+    axisLabel:{..._AX_LABEL,formatter:v=>v+'%'}},
+  series:[{name:'Gemini-3-Pro',type:'line',smooth:true,data:[33.9, 33.9, 33.9, 33.9, 33.9, 33.9],symbol:'circle',symbolSize:7,
+         lineStyle:{width:2.5,color:'#38bdf8'},itemStyle:{color:'#38bdf8'} },
+        {name:'Gemini-3-Flash',type:'line',smooth:true,data:[44.6, 44.6, 44.6, 44.6, 44.6, 44.6],symbol:'circle',symbolSize:7,
+         lineStyle:{width:2.5,color:'#818cf8'},itemStyle:{color:'#818cf8'} },
+        {name:'Qwen3-Omni-30B-A3B',type:'line',smooth:true,data:[6.2, 6.8, 7.4, 8.4, 9.5, 10.0],symbol:'circle',symbolSize:7,
+         lineStyle:{width:2.5,color:'#34d399'},itemStyle:{color:'#34d399'} },
+        {name:'Qwen3-VL-30B',type:'line',smooth:true,data:[30.2, 30.2, 30.2, 30.2, 30.2, 30.2],symbol:'circle',symbolSize:7,
+         lineStyle:{width:2.5,color:'#fb923c'},itemStyle:{color:'#fb923c'} }]
+});
+
+// §5: Component radar
+const compChart=_init(document.getElementById('componentChart'));
+compChart.setOption({
+  tooltip:{..._TT},
+  legend:{..._LG,top:6,type:'scroll'},
+  radar:{
+    indicator:[{name:'Acc_cls',max:70},{name:'Acc_s',max:50},{name:'Acc_t',max:70},{name:'Acc_eco',max:20}],
+    radius:'54%',center:['50%','55%'],
+    name:{textStyle:{fontFamily:_FONT,fontSize:13,color:_C.textMid}},
+    axisLine:{lineStyle:{color:'#dde3ef'}},
+    splitLine:{lineStyle:{color:'#eef1f7'}},
+    splitArea:{areaStyle:{color:['rgba(248,250,252,.9)','rgba(239,242,255,.4)']}}
+  },
+  series:[{type:'radar',data:[{value:[63.9, 33.9, 56.5, 17.0],name:'Gemini-3-Pro',lineStyle:{color:'#818cf8'},areaStyle:{opacity:0.06} },
+        {value:[71.4, 44.6, 19.3, 7.0],name:'Gemini-3-Flash',lineStyle:{color:'#38bdf8'},areaStyle:{opacity:0.06} },
+        {value:[29.5, 5.7, 3.6, 0.7],name:'Qwen3-Omni-30B-A3B',lineStyle:{color:'#fb923c'},areaStyle:{opacity:0.06} },
+        {value:[41.2, 30.2, 37.0, 11.4],name:'Qwen3-VL-30B',lineStyle:{color:'#34d399'},areaStyle:{opacity:0.06} }]}]
+});
+
+// §5: Scene bar chart
+const sceneChart=_init(document.getElementById('sceneChart'));
+sceneChart.setOption({
+  tooltip:{..._TT,trigger:'axis',axisPointer:_AP},
+  legend:{..._LG,top:6,type:'scroll'},
+  grid:{top:52,bottom:40,left:60,right:16,containLabel:true},
+  xAxis:{..._AXIS,type:'category',data:['Industrial','Kitchen','Office'],
+    axisLabel:{..._AX_LABEL,fontSize:13}},
+  yAxis:{..._AXIS_D,type:'value',name:'Acc_eco (%)',nameTextStyle:_ANAME,
+    axisLabel:{..._AX_LABEL,formatter:v=>v+'%'}},
+  series:[
+        {name:'Gemini-3-Pro',type:'bar',data:[11.5, 17.9, 20.0],itemStyle:{color:'#818cf8',borderRadius:[4,4,0,0]} },
+        {name:'Gemini-3-Flash',type:'bar',data:[9.2, 5.0, 6.9],itemStyle:{color:'#38bdf8',borderRadius:[4,4,0,0]} },
+        {name:'Qwen3-Omni-30B-A3B',type:'bar',data:[0.0, 0.0, 1.8],itemStyle:{color:'#fb923c',borderRadius:[4,4,0,0]} },
+        {name:'Qwen3-VL-30B',type:'bar',data:[0.0, 0.0, 0.0],itemStyle:{color:'#34d399',borderRadius:[4,4,0,0]} },]
+});
+
+// §5: Object size bar chart
+const objSizeChart=_init(document.getElementById('objSizeChart'));
+objSizeChart.setOption({
+  tooltip:{..._TT,trigger:'axis',axisPointer:_AP},
+  legend:{..._LG,top:6},
+  grid:{top:52,bottom:48,left:60,right:16,containLabel:true},
+  xAxis:{..._AXIS,type:'category',data:["Gemini-3-Pro", "Gemini-3-Flash", "Qwen3-Omni-30B-A3B", "Qwen3-VL-30B"],
+    axisLabel:{..._AX_LABEL,interval:0,fontSize:12}},
+  yAxis:{..._AXIS_D,type:'value',name:'Acc_s (%)',nameTextStyle:_ANAME,
+    axisLabel:{..._AX_LABEL,formatter:v=>v+'%'}},
+  series:[
+    {name:'Small', type:'bar',data:[8.7, 12.2, 0.0, 14.4],itemStyle:{color:'#f59e0b',borderRadius:[5,5,0,0]},
+      label:_BL_TOP},
+    {name:'Medium',type:'bar',data:[27.7, 34.8, 0.0, 23.8],itemStyle:{color:'#6366f1',borderRadius:[5,5,0,0]},
+      label:_BL_TOP},
+    {name:'Large', type:'bar',data:[24.0, 36.5, 0.0, 28.5],itemStyle:{color:'#10b981',borderRadius:[5,5,0,0]},
+      label:_BL_TOP}
+  ]
+});
+
+// §5b: Images+ASR vs Video-Omni overall metric comparison
+const imagesAsrEl=document.getElementById('imagesAsrChart');
+if(imagesAsrEl){
+const imagesAsrChart=_init(imagesAsrEl);
+imagesAsrChart.setOption({
+  tooltip:{..._TT,trigger:'axis',axisPointer:_AP},
+  legend:{..._LG,top:6,type:'scroll'},
+  grid:{top:52,bottom:56,left:64,right:20,containLabel:true},
+  xAxis:{..._AXIS,type:'category',data:["Acc_cls", "Acc_s", "Acc_t", "Acc_eco", "Acc_seq"],
+    axisLabel:{..._AX_LABEL,fontSize:13}},
+  yAxis:{..._AXIS_D,type:'value',name:'Score (%)',nameTextStyle:_ANAME,
+    axisLabel:{..._AX_LABEL,formatter:v=>v+'%'},max:100},
+  series:[{name:'Gemini-3-Pro (Img+ASR)',type:'bar',data:[71.2, 57.1, 76.5, 42.9, 25.5],itemStyle:{color:'#818cf8',borderRadius:[4,4,0,0]} },
+        {name:'Gemini-3-Pro (Video-Omni)',type:'bar',data:[63.9, 33.9, 56.5, 17.0, 10.9],itemStyle:{color:'#c7d2fe',borderRadius:[4,4,0,0],borderColor:'#818cf8',borderWidth:1} },
+        {name:'Gemini-3-Flash (Img+ASR)',type:'bar',data:[80.1, 63.0, 81.8, 48.1, 30.8],itemStyle:{color:'#38bdf8',borderRadius:[4,4,0,0]} },
+        {name:'Gemini-3-Flash (Video-Omni)',type:'bar',data:[71.4, 44.6, 19.3, 7.0, 4.1],itemStyle:{color:'#bae6fd',borderRadius:[4,4,0,0],borderColor:'#38bdf8',borderWidth:1} },
+        {name:'Qwen3-Omni-30B-A3B (Img+ASR)',type:'bar',data:[17.9, 6.0, 13.8, 0.7, 0.6],itemStyle:{color:'#fb923c',borderRadius:[4,4,0,0]} },
+        {name:'Qwen3-Omni-30B-A3B (Video-Omni)',type:'bar',data:[29.5, 5.7, 3.6, 0.7, 0.7],itemStyle:{color:'#ffedd5',borderRadius:[4,4,0,0],borderColor:'#fb923c',borderWidth:1} },
+        {name:'Qwen3-Omni-Flash (Img+ASR)',type:'bar',data:[32.5, 17.7, 30.5, 9.3, 6.5],itemStyle:{color:'#f97316',borderRadius:[4,4,0,0]} },
+        {name:'Qwen3-Omni-Flash (Video-Omni)',type:'bar',data:[47.1, 19.0, 3.4, 0.7, 0.6],itemStyle:{color:'#fed7aa',borderRadius:[4,4,0,0],borderColor:'#f97316',borderWidth:1} }]
+});
+}
+
+// §5b: Images+ASR Acc_eco delta per level
+const imagesAsrDeltaEl=document.getElementById('imagesAsrDeltaChart');
+if(imagesAsrDeltaEl){
+const imagesAsrDeltaChart=_init(imagesAsrDeltaEl);
+imagesAsrDeltaChart.setOption({
+  tooltip:{..._TT,trigger:'axis',axisPointer:_AP,
+    formatter:params=>params[0].axisValue+'<br/>'+
+      params.map(p=>`${p.marker}<b>${p.seriesName}</b>: ${p.value>0?'+':''}${p.value}%`).join('<br/>')},
+  legend:{..._LG,top:6},
+  grid:{top:52,bottom:56,left:68,right:20,containLabel:true},
+  xAxis:{..._AXIS,type:'category',data:["L1", "L2", "L3", "L4"],
+    axisLabel:{..._AX_LABEL,fontSize:13}},
+  yAxis:{..._AXIS_D,type:'value',name:'Δ Acc_eco (%)',nameTextStyle:_ANAME,
+    axisLabel:{..._AX_LABEL,formatter:v=>(v>0?'+':'')+v+'%'},
+    axisLine:{show:true,lineStyle:{color:_C.line}}},
+  series:[{name:'Gemini-3-Pro',type:'bar',data:[28.8, 30.7, 23.9, 24.0],itemStyle:{color:'#818cf8',borderRadius:[4,4,0,0]},
+         label:{show:true,position:'top',fontSize:11} },
+        {name:'Gemini-3-Flash',type:'bar',data:[54.7, 55.5, 36.8, 30.7],itemStyle:{color:'#38bdf8',borderRadius:[4,4,0,0]},
+         label:{show:true,position:'top',fontSize:11} },
+        {name:'Qwen3-Omni-30B-A3B',type:'bar',data:[-0.7, 0.0, 0.0, 0.1],itemStyle:{color:'#fb923c',borderRadius:[4,4,0,0]},
+         label:{show:true,position:'top',fontSize:11} },
+        {name:'Qwen3-Omni-Flash',type:'bar',data:[6.5, 27.7, 4.9, 3.5],itemStyle:{color:'#f97316',borderRadius:[4,4,0,0]},
+         label:{show:true,position:'top',fontSize:11} }]
+});
+}
+
+// ── §5c Stroke & Timestamp Distribution Charts ─────────────────
+
+// §5c Chart 1: Stroke Duration Boxplot by Level
+const strokeDurChart=_init(document.getElementById('strokeDurChart'));
+(function(){
+  const levels=["L1 (Inst.1)", "L2 (Inst.2)", "L3 (Inst.3/4)", "L4 (Inst.5/6)"];
+  const boxData=[[612, 1014, 1280, 1738, 2073], [483, 1075, 1515, 1829, 2520], [287, 523, 733, 944, 1323], [285, 445, 620, 787, 1100]];
+  const means=[1341, 1493, 758, 635];
+  strokeDurChart.setOption({
+    tooltip:{..._TT,trigger:'item',formatter:p=>{
+      if(p.seriesIndex===0){
+        const d=p.data;
+        return `<b>${p.name}</b><br/>5th: ${d[0]}ms<br/>Q1: ${d[1]}ms<br/><b>Median: ${d[2]}ms</b><br/>Q3: ${d[3]}ms<br/>95th: ${d[4]}ms`;
+      }
+      return `<b>${p.name}</b><br/>Mean: <b>${p.value}ms</b>`;
+    }},
+    legend:{..._LG,top:6,data:['Duration','Mean']},
+    grid:{top:48,bottom:56,left:76,right:24,containLabel:true},
+    xAxis:{..._AXIS,type:'category',data:levels,axisLabel:{..._AX_LABEL,fontSize:13}},
+    yAxis:{..._AXIS_D,type:'value',name:'Duration (ms)',nameTextStyle:_ANAME,
+      axisLabel:{..._AX_LABEL,formatter:v=>v+'ms'}},
+    series:[
+      {name:'Duration',type:'boxplot',data:boxData,
+        itemStyle:{color:'#eef2ff',borderColor:'#818cf8',borderWidth:2.5},
+        boxWidth:['28%','50%']},
+      {name:'Mean',type:'scatter',data:means,
+        symbol:'diamond',symbolSize:15,
+        itemStyle:{color:'#f59e0b',shadowBlur:6,shadowColor:'rgba(245,158,11,.5)'},z:10}
+    ]
+  });
+})();
+
+// §5c Chart 2: Stroke Position on Timeline
+const strokePosChart=_init(document.getElementById('strokePosChart'));
+(function(){
+  const idxLabels=["Stroke #1", "Stroke #2", "Stroke #3", "Stroke #4"];
+  const begins=[2537, 4461, 6618, 8550];
+  const mids=[3030, 4967, 7062, 9029];
+  const ends=[3522, 5472, 7506, 9509];
+  const counts=[804, 528, 244, 128];
+  const validIdx=idxLabels.map((_,i)=>counts[i]>0?i:-1).filter(i=>i>=0);
+  const vLabels=validIdx.map(i=>idxLabels[i]);
+  const vBegins=validIdx.map(i=>begins[i]);
+  const vMids=validIdx.map(i=>mids[i]);
+  const vEnds=validIdx.map(i=>ends[i]);
+  const vDurs=vBegins.map((b,i)=>vEnds[i]-b);
+  const barColors=['#6366f1','#f59e0b','#10b981','#ef4444'];
+  strokePosChart.setOption({
+    tooltip:{..._TT,trigger:'axis',formatter:params=>{
+      const lbl=params[0].axisValue;
+      const i=vLabels.indexOf(lbl);
+      if(i<0) return lbl;
+      return `<b>${lbl}</b><br/>Begin: ${vBegins[i]}ms · Mid: ${vMids[i]}ms · End: ${vEnds[i]}ms`+
+        `<br/>Duration: <b>${vDurs[i]}ms</b> · n=${counts[validIdx[i]]}`;
+    }},
+    legend:{show:false},
+    grid:{top:12,bottom:48,left:110,right:56,containLabel:false},
+    xAxis:{..._AXIS,type:'value',
+      name:'Time (ms)',nameLocation:'middle',nameGap:32,nameTextStyle:_ANAME,
+      axisLabel:{..._AX_LABEL,formatter:v=>(v/1000).toFixed(1)+'s'}},
+    yAxis:{..._AXIS,type:'category',data:vLabels,
+      axisLabel:{..._AX_LABEL,fontSize:13,fontWeight:'600'}},
+    series:[
+      {name:'offset',type:'bar',stack:'ts',data:vBegins,
+        itemStyle:{color:'transparent'},silent:true,tooltip:{show:false}},
+      {name:'Stroke Window',type:'bar',stack:'ts',
+        data:vDurs.map((d,i)=>({value:d,itemStyle:{
+          color:barColors[validIdx[i]]+'2e',
+          borderColor:barColors[validIdx[i]],borderWidth:2.5,borderRadius:[0,7,7,0]
+        }})),
+        label:{show:true,position:'right',fontFamily:_FONT,fontSize:12,color:_C.textMid,
+          formatter:p=>`${vDurs[p.dataIndex]}ms`}},
+      {name:'Midpoint',type:'scatter',
+        data:vLabels.map((l,i)=>[vMids[i],l]),
+        symbol:'circle',symbolSize:13,
+        itemStyle:{color:'#fff',borderWidth:3,borderColor:'#059669',
+          shadowBlur:6,shadowColor:'rgba(5,150,105,.5)'},z:10}
+    ]
+  });
+})();
+
+// §5c Chart 3 & 4: Timestamp Boxplot builder
+function _buildTsBoxChart(chartInst,models,boxes,means,colors){
+  const markLines=[];
+  let prevIdx=-1;
+  models.forEach((m,i)=>{
+    const n=parseInt(m[1]);
+    if(n!==prevIdx&&i>0) markLines.push({yAxis:i-0.5,lineStyle:{color:'#dde3ef',type:'solid',width:1.5}});
+    prevIdx=n;
+  });
+  chartInst.setOption({
+    tooltip:{..._TT,trigger:'item',formatter:p=>{
+      if(p.seriesIndex===0){
+        const d=p.data;
+        return `<b>${p.name}</b><br/>5th: ${d[0]}ms &nbsp; Q1: ${d[1]}ms<br/><b>Median: ${d[2]}ms</b><br/>Q3: ${d[3]}ms &nbsp; 95th: ${d[4]}ms`;
+      }
+      return `<b>${p.name}</b><br/>Mean: <b>${p.value}ms</b>`;
+    }},
+    grid:{top:16,bottom:52,left:200,right:72,containLabel:false},
+    xAxis:{..._AXIS,type:'value',
+      name:'Timestamp (ms)',nameLocation:'middle',nameGap:32,nameTextStyle:_ANAME,
+      axisLabel:{..._AX_LABEL,formatter:v=>(v/1000).toFixed(1)+'s'}},
+    yAxis:{..._AXIS,type:'category',data:models,
+      axisLabel:{..._AX_LABEL,fontSize:11,interval:0,
+        formatter:v=>v.replace(/^#\d+\s/,'')}},
+    series:[
+      {name:'Predicted Timestamp',type:'boxplot',
+        data:boxes.map((b,i)=>({value:b,itemStyle:{
+          color:colors[i]+'22',borderColor:colors[i],borderWidth:2.5
+        }})),
+        boxWidth:['24%','50%'],
+        markLine:{silent:true,symbol:'none',data:markLines}},
+      {name:'Mean',type:'scatter',
+        data:means.map((v,i)=>[v,i]),
+        symbol:'diamond',symbolSize:12,
+        itemStyle:{color:'#f59e0b',shadowBlur:6,shadowColor:'rgba(245,158,11,.5)'},z:10}
+    ]
+  });
+}
+
+const tsVideoChart=_init(document.getElementById('tsVideoChart'));
+_buildTsBoxChart(tsVideoChart,["#1 Gemini-3-Pro", "#1 Gemini-3-Flash", "#1 Qwen3-Omni-30B-A3B", "#1 Qwen3-Omni-Flash", "#1 GT Midpoint", "#2 Gemini-3-Pro", "#2 Gemini-3-Flash", "#2 Qwen3-Omni-30B-A3B", "#2 Qwen3-Omni-Flash", "#2 GT Midpoint", "#3 Gemini-3-Pro", "#3 Gemini-3-Flash", "#3 Qwen3-Omni-30B-A3B", "#3 Qwen3-Omni-Flash", "#3 GT Midpoint", "#4 Gemini-3-Pro", "#4 Gemini-3-Flash", "#4 Qwen3-Omni-30B-A3B", "#4 Qwen3-Omni-Flash", "#4 GT Midpoint"],[[1600, 2000, 2400, 3000, 4000], [1000, 1400, 2000, 2466, 3700], [1200, 1200, 1200, 1200, 3200], [1200, 1500, 1500, 1800, 2500], [2129, 2522, 2895, 3400, 4348], [3600, 4000, 4500, 5000, 6500], [2800, 3366, 4000, 4500, 5655], [1200, 3200, 3200, 3200, 3200], [1200, 1800, 2000, 2600, 3200], [3996, 4440, 4834, 5364, 6462], [5200, 6000, 6500, 7000, 8400], [4820, 5500, 6000, 6866, 8000], [1200, 1200, 5200, 5200, 5200], [1200, 2000, 2500, 3000, 3200], [5855, 6451, 6920, 7542, 8721], [7060, 7800, 8300, 9200, 10500], [6110, 7308, 8083, 9000, 10105], [1200, 3200, 3200, 7200, 7200], [1200, 1800, 2400, 3000, 3245], [7673, 8324, 8847, 9734, 10677]],[2594, 2094, 1440, 1654, 3029, 4650, 4050, 2920, 2188, 4967, 6594, 6194, 3663, 2446, 7062, 8527, 8104, 4299, 2346, 9029],["#818cf8", "#38bdf8", "#fb923c", "#f97316", "#059669", "#818cf8", "#38bdf8", "#fb923c", "#f97316", "#059669", "#818cf8", "#38bdf8", "#fb923c", "#f97316", "#059669", "#818cf8", "#38bdf8", "#fb923c", "#f97316", "#059669"]);
+
+const tsImagesChart=_init(document.getElementById('tsImagesChart'));
+_buildTsBoxChart(tsImagesChart,["#1 Gemini-3-Pro", "#1 Gemini-3-Flash", "#1 Qwen3-Omni-30B-A3B", "#1 Qwen3-Omni-Flash", "#1 GT Midpoint", "#2 Gemini-3-Pro", "#2 Gemini-3-Flash", "#2 Qwen3-Omni-30B-A3B", "#2 Qwen3-Omni-Flash", "#2 GT Midpoint", "#3 Gemini-3-Pro", "#3 Gemini-3-Flash", "#3 Qwen3-Omni-30B-A3B", "#3 Qwen3-Omni-Flash", "#3 GT Midpoint", "#4 Gemini-3-Pro", "#4 Gemini-3-Flash", "#4 Qwen3-Omni-30B-A3B", "#4 Qwen3-Omni-Flash", "#4 GT Midpoint"],[[2000, 2500, 2600, 3500, 4500], [2000, 2500, 3000, 3500, 4500], [1000, 3000, 4000, 6500, 10000], [1580, 3000, 3500, 4165, 6551], [2129, 2522, 2895, 3400, 4348], [3500, 4000, 4500, 5000, 6500], [4000, 4500, 5000, 5500, 6500], [1200, 3500, 6000, 7500, 10000], [3000, 3525, 4000, 5000, 8500], [3996, 4440, 4834, 5364, 6462], [5500, 6000, 6600, 7500, 9000], [6000, 6500, 7000, 7845, 9000], [1000, 3000, 4000, 8500, 10000], [4000, 6000, 6680, 7545, 9245], [5855, 6451, 6920, 7542, 8721], [7465, 8000, 8500, 9500, 10500], [7500, 8500, 9000, 10000, 10640], [1000, 3250, 8000, 9250, 10750], [4250, 6750, 8000, 9000, 10750], [7673, 8324, 8847, 9734, 10677]],[2921, 3083, 4865, 3774, 3029, 4773, 5031, 5694, 4718, 4967, 6933, 7227, 5252, 6736, 7062, 8854, 9146, 6406, 7681, 9029],["#818cf8", "#38bdf8", "#fb923c", "#f97316", "#059669", "#818cf8", "#38bdf8", "#fb923c", "#f97316", "#059669", "#818cf8", "#38bdf8", "#fb923c", "#f97316", "#059669", "#818cf8", "#38bdf8", "#fb923c", "#f97316", "#059669"]);
+
+// §5c Chart 5: Mean timestamp by level
+function _buildTsLevelChart(chartInst,extraSeries){
+  const gtLine=[3165, 3334, 3975, 5561];
+  chartInst.setOption({
+    tooltip:{..._TT,trigger:'axis',
+      formatter:params=>`<b>${params[0].axisValue}</b><br/>`+
+        params.map(p=>`${p.marker}<b>${p.seriesName}</b>: ${p.value==null?'—':p.value+'ms'}`).join('<br/>')},
+    legend:{..._LG,top:6,type:'scroll'},
+    grid:{top:52,bottom:56,left:80,right:20,containLabel:true},
+    xAxis:{..._AXIS,type:'category',data:["L1 (Inst.1)", "L2 (Inst.2)", "L3 (Inst.3/4)", "L4 (Inst.5/6)"],
+      axisLabel:{..._AX_LABEL,fontSize:13,interval:0}},
+    yAxis:{..._AXIS_D,type:'value',name:'Mean Timestamp (ms)',nameTextStyle:_ANAME,
+      axisLabel:{..._AX_LABEL,formatter:v=>v+'ms'}},
+    series:[
+      {name:'GT Stroke Midpoint',type:'line',data:gtLine,
+        lineStyle:{color:'#059669',width:3,type:'dashed'},
+        itemStyle:{color:'#059669'},symbol:'none',z:5},
+      ...extraSeries
+    ]
+  });
+}
+
+const tsLevelVideoChart=_init(document.getElementById('tsLevelVideoChart'));
+_buildTsLevelChart(tsLevelVideoChart,[
+        {name:'Gemini-3-Pro',type:'line',smooth:true,data:[2751, 2910, 3547, 5062],symbol:'circle',symbolSize:6,
+         lineStyle:{color:'#818cf8',width:2},itemStyle:{color:'#818cf8'} },
+        {name:'Gemini-3-Flash',type:'line',smooth:true,data:[2211, 2349, 3012, 4699],symbol:'circle',symbolSize:6,
+         lineStyle:{color:'#38bdf8',width:2},itemStyle:{color:'#38bdf8'} },
+        {name:'Qwen3-Omni-30B-A3B',type:'line',smooth:true,data:[1770, 1499, 2252, 2795],symbol:'circle',symbolSize:6,
+         lineStyle:{color:'#fb923c',width:2},itemStyle:{color:'#fb923c'} },
+        {name:'Qwen3-Omni-Flash',type:'line',smooth:true,data:[1781, 1724, 1981, 2053],symbol:'circle',symbolSize:6,
+         lineStyle:{color:'#f97316',width:2},itemStyle:{color:'#f97316'} },]);
+
+const tsLevelImagesChart=_init(document.getElementById('tsLevelImagesChart'));
+_buildTsLevelChart(tsLevelImagesChart,[
+        {name:'Gemini-3-Pro',type:'line',smooth:true,data:[2993, 3006, 3868, 5437],symbol:'circle',symbolSize:6,
+         lineStyle:{color:'#818cf8',width:2},itemStyle:{color:'#818cf8'} },
+        {name:'Gemini-3-Flash',type:'line',smooth:true,data:[3244, 3332, 4070, 5651],symbol:'circle',symbolSize:6,
+         lineStyle:{color:'#38bdf8',width:2},itemStyle:{color:'#38bdf8'} },
+        {name:'Qwen3-Omni-30B-A3B',type:'line',smooth:true,data:[3711, 4214, 5365, 6006],symbol:'circle',symbolSize:6,
+         lineStyle:{color:'#fb923c',width:2},itemStyle:{color:'#fb923c'} },
+        {name:'Qwen3-Omni-Flash',type:'line',smooth:true,data:[3030, 3066, 3997, 5660],symbol:'circle',symbolSize:6,
+         lineStyle:{color:'#f97316',width:2},itemStyle:{color:'#f97316'} },]);
+
+// ── §5d Sub-metric Decoupling Charts ───────────────────────────
+
+// §5d Chart 1: Sub-metric grouped bar chart
+const submetricChart=_init(document.getElementById('submetricChart'));
+submetricChart.setOption({
+  tooltip:{..._TT,trigger:'axis',axisPointer:_AP,
+    formatter:params=>params[0].axisValue+'<br/>'+
+      params.map(p=>`${p.marker}<b>${p.seriesName}</b>: ${p.value}%`).join('<br/>')},
+  legend:{..._LG,top:6,type:'scroll'},
+  grid:{top:52,bottom:96,left:64,right:20,containLabel:true},
+  xAxis:{..._AXIS,type:'category',data:["Gemini-3-Pro", "Gemini-3-Flash", "Qwen3-Omni-30B-A3B", "Qwen3-VL-30B"],
+    axisLabel:{..._AX_LABEL,interval:0,rotate:30,fontSize:12}},
+  yAxis:{..._AXIS_D,type:'value',name:'Score (%)',nameTextStyle:_ANAME,
+    max:100,axisLabel:{..._AX_LABEL,formatter:v=>v+'%'}},
+  series:[
+        {name:'Acc_cls',type:'bar',data:[63.9, 71.4, 29.5, 41.2],itemStyle:{color:'#6366f1',borderRadius:[4,4,0,0]} },
+        {name:'Acc_s',type:'bar',data:[33.9, 44.6, 5.7, 30.2],itemStyle:{color:'#f59e0b',borderRadius:[4,4,0,0]} },
+        {name:'Acc_t',type:'bar',data:[56.5, 19.3, 3.6, 37.0],itemStyle:{color:'#10b981',borderRadius:[4,4,0,0]} },
+        {name:'Acc_eco',type:'bar',data:[17.0, 7.0, 0.7, 11.4],itemStyle:{color:'#dc2626',borderRadius:[4,4,0,0],borderWidth:2,borderColor:'#fff'} },]
+});
+
+// Failure Bottleneck Chart — Omni Models only
+const failureBottleneckChart=_init(document.getElementById('failureBottleneckChart'));
+(function(){
+  const models=["Ming-Lite-Omni 1.5", "MiniCPM-o 4.5", "Qwen3-Omni-Flash", "Qwen3-Omni-30B-A3B", "Gemini-3-Flash", "Gemini-3-Pro"];
+  failureBottleneckChart.setOption({
+    tooltip:{..._TT,trigger:'axis',axisPointer:_AP,
+      formatter:params=>{
+        const rows=params.filter(p=>p.value>0)
+          .map(p=>`<span style="display:inline-block;width:10px;height:10px;background:${p.color};`+
+            `border-radius:2px;margin-right:6px"></span><b>${p.seriesName}</b>: ${p.value}%`);
+        return `<b>${params[0].axisValue}</b><br/>${rows.join('<br/>')}`;
+      }},
+    legend:{show:false},
+    grid:{top:10,bottom:10,left:10,right:80,containLabel:true},
+    xAxis:{..._AXIS_D,type:'value',max:100,
+      axisLabel:{..._AX_LABEL,formatter:v=>v+'%'}},
+    yAxis:{..._AXIS,type:'category',data:models,
+      axisLabel:{..._AX_LABEL,fontSize:12,fontWeight:'600',width:160,overflow:'truncate'}},
+    series:[
+      {name:'Only-C (What)',type:'bar',stack:'fail',data:[0.0, 0.0, 0.0, 0.0, 0.4, 1.1],
+        itemStyle:{color:'#a855f7'},label:_BL_IN(4)},
+      {name:'Only-S (Where)',type:'bar',stack:'fail',data:[0.0, 0.1, 1.1, 0.5, 4.0, 18.0],
+        itemStyle:{color:'#f59e0b'},label:_BL_IN(4)},
+      {name:'Only-T (When)',type:'bar',stack:'fail',data:[1.2, 0.5, 8.6, 1.2, 17.7, 5.7],
+        itemStyle:{color:'#10b981'},label:_BL_IN(4)},
+      {name:'Joint (≥2)',type:'bar',stack:'fail',data:[98.8, 99.4, 90.3, 98.3, 77.9, 75.2],
+        itemStyle:{color:'#ef4444',borderRadius:[0,5,5,0]},label:_BL_IN(4)}
+    ]
+  });
+})();
+
+// §5d Chart 2: Bottleneck stacked bar (all models)
+// bottleneckChart placeholder (hidden in HTML, kept for resize safety)
+const bottleneckChart={resize:()=>{}};
+
+// §5d Chart 3: Scene × Level heatmap
+const heatmapChart=_init(document.getElementById('heatmapChart'));
+heatmapChart.setOption({
+  tooltip:{..._TT,position:'top',
+    formatter:p=>{
+      const scenes=["Industrial", "Kitchen", "Office"];
+      const levels=["L1", "L2", "L3", "L4"];
+      return `<b>${scenes[p.data[1]]} × ${levels[p.data[0]]}</b><br/>Acc_eco: <b>${p.data[2]}%</b>`;
+    }},
+  grid:{top:20,bottom:56,left:110,right:96,containLabel:false},
+  xAxis:{..._AXIS,type:'category',data:["L1", "L2", "L3", "L4"],
+    axisLabel:{..._AX_LABEL,fontSize:13},
+    splitArea:{show:true,areaStyle:{color:['#f8fafc','#fff']}}},
+  yAxis:{..._AXIS,type:'category',data:["Industrial", "Kitchen", "Office"],
+    axisLabel:{..._AX_LABEL,fontSize:13},
+    splitArea:{show:true,areaStyle:{color:['#f8fafc','#fff']}}},
+  visualMap:{
+    min:0,max:9.0,calculable:true,
+    orient:'horizontal',right:0,bottom:6,
+    itemWidth:16,itemHeight:110,
+    inRange:{color:['#f0fdf4','#86efac','#16a34a','#14532d']},
+    text:['High','Low'],textStyle:{fontFamily:_FONT,fontSize:12,color:_C.textMid}
+  },
+  series:[{
+    type:'heatmap',data:[[0, 0, 4.1], [1, 0, 3.4], [2, 0, 1.9], [3, 0, 2.9], [0, 1, 5.9], [1, 1, 4.7], [2, 1, 1.6], [3, 1, 1.7], [0, 2, 7.8], [1, 2, 6.9], [2, 2, 1.8], [3, 2, 2.0]],
+    label:{show:true,fontFamily:_FONT,formatter:p=>`${p.data[2]}%`,fontSize:15,fontWeight:'700'},
+    emphasis:{itemStyle:{shadowBlur:14,shadowColor:'rgba(0,0,0,.22)'}}
+  }]
+});
+
+// ── §5e Cross-Lingual & Timestamp Calibration Charts ───────────
+
+// §5e Chart 1: EN vs ZH lollipop
+const lollipopChart=_init(document.getElementById('lollipopChart'));
+(function(){
+  const models=["Gemini-3-Pro", "Qwen3-VL-30B", "Gemini-3-Flash", "Qwen3-Omni-30B-A3B"];
+  const enVals=[21.37, 9.42, 6.58, 0.82];
+  const zhVals=[13.33, 13.08, 7.28, 0.68];
+  const deltas=[-8.04, 3.66, 0.7, -0.14];
+  lollipopChart.setOption({
+    tooltip:{..._TT,trigger:'axis',
+      formatter:params=>{
+        const i=params[0]?.dataIndex??0;
+        const d=deltas[i];
+        return `<b>${models[i]}</b><br/>EN: <b>${enVals[i]}%</b><br/>ZH: <b>${zhVals[i]}%</b><br/>`+
+          `Δ ZH−EN: <b style="color:${d>=0?'#4ade80':'#f87171'}">${d>0?'+':''}${d}pp</b>`;
+      }},
+    legend:{..._LG,top:6,data:['EN','ZH']},
+    grid:{top:48,bottom:28,left:170,right:60,containLabel:false},
+    xAxis:{..._AXIS_D,type:'value',
+      name:'Acc_eco (%)',nameLocation:'middle',nameGap:32,nameTextStyle:_ANAME,
+      axisLabel:{..._AX_LABEL,formatter:v=>v+'%'},min:0},
+    yAxis:{..._AXIS,type:'category',data:models,
+      axisLabel:{..._AX_LABEL,fontSize:12}},
+    series:[
+      {name:'Connector',type:'custom',z:1,silent:true,
+        renderItem:(params,api)=>{
+          const en=api.value(0),zh=api.value(1),idx=api.value(2);
+          const p0=api.coord([en,idx]),p1=api.coord([zh,idx]);
+          return {type:'line',shape:{x1:p0[0],y1:p0[1],x2:p1[0],y2:p1[1]},
+            style:{stroke:zh-en>=0?'#15803d':'#dc2626',lineWidth:3,opacity:.6}};
+        },
+        data:models.map((m,i)=>[enVals[i],zhVals[i],i])},
+      {name:'EN',type:'scatter',data:enVals.map((v,i)=>[v,i]),
+        symbol:'circle',symbolSize:15,
+        itemStyle:{color:'#818cf8',shadowBlur:8,shadowColor:'rgba(129,140,248,.45)'},z:5},
+      {name:'ZH',type:'scatter',data:zhVals.map((v,i)=>[v,i]),
+        symbol:'circle',symbolSize:15,
+        itemStyle:{color:'rgba(255,255,255,.95)',borderColor:'#f97316',borderWidth:3,
+          shadowBlur:8,shadowColor:'rgba(249,115,22,.45)'},z:5}
+    ]
+  });
+})();
+
+// §5e Chart 2: Timestamp bias per model
+const tsBiasChart=_init(document.getElementById('tsBiasChart'));
+(function(){
+  const models=["Gemini-3-Pro", "Gemini-3-Flash", "Qwen3-Omni-30B-A3B", "Qwen3-VL-30B"];
+  const videoVals=[-418,-943,-2015,null];
+  const imgVals=[-183,64,1074,null];
+  tsBiasChart.setOption({
+    tooltip:{..._TT,trigger:'axis',
+      formatter:params=>{
+        const rows=params.map(p=>`${p.marker}<b>${p.seriesName}</b>: `+
+          `${p.value===null?'N/A':(p.value>0?'+':'')+p.value+'ms'}`);
+        return `<b>${params[0].axisValue}</b><br/>${rows.join('<br/>')}`;
+      }},
+    legend:{..._LG,top:6,data:['Video Input','Images+ASR']},
+    grid:{top:52,bottom:96,left:72,right:20,containLabel:true},
+    xAxis:{..._AXIS,type:'category',data:models,
+      axisLabel:{..._AX_LABEL,interval:0,rotate:30,fontSize:12}},
+    yAxis:{..._AXIS_D,type:'value',name:'Bias (ms)',nameTextStyle:_ANAME,
+      axisLabel:{..._AX_LABEL,formatter:v=>(v>0?'+':'')+v+'ms'},
+      axisLine:{show:true,lineStyle:{color:_C.line}}},
+    series:[
+      {name:'Video Input',type:'bar',data:videoVals,
+        itemStyle:{color:p=>p.value<0?'#f87171':'#4ade80',borderRadius:[5,5,0,0]},
+        markLine:{silent:true,symbol:'none',data:[{yAxis:0,
+          lineStyle:{color:'#059669',type:'dashed',width:2.5},
+          label:{fontFamily:_FONT,formatter:'GT midpoint',position:'insideEndTop',
+            fontSize:11,color:'#059669'}}]}},
+      {name:'Images+ASR',type:'bar',data:imgVals,
+        itemStyle:{color:p=>p.value<0?'#93c5fd':'#6ee7b7',borderRadius:[5,5,0,0]}}
+    ]
+  });
+})();
+
+// §5e Chart 3: Calibration accuracy
+const calAccChart=_init(document.getElementById('calAccChart'));
+calAccChart.setOption({
+  tooltip:{..._TT,trigger:'axis',axisPointer:_AP,
+    formatter:params=>`<b>${params[0].axisValue}</b><br/>`+
+      params.map(p=>`${p.marker}<b>${p.seriesName}</b>: ${p.value}%`).join('<br/>')},
+  legend:{..._LG,top:6,type:'scroll'},
+  grid:{top:52,bottom:56,left:72,right:20,containLabel:true},
+  xAxis:{..._AXIS,type:'category',data:["L1", "L2", "L3", "L4"],
+    axisLabel:{..._AX_LABEL,fontSize:13}},
+  yAxis:{..._AXIS_D,type:'value',name:'% within window',nameTextStyle:_ANAME,
+    max:100,axisLabel:{..._AX_LABEL,formatter:v=>v+'%'}},
+  series:[
+    {name:'Video ±500ms',  type:'bar',data:[13.3, 20.3, 16.1, 14.0],
+      itemStyle:{color:'#f87171',borderRadius:[5,5,0,0]},
+      label:{show:true,position:'top',fontFamily:_FONT,fontSize:12,color:_C.textMid,
+        formatter:p=>p.value+'%'}},
+    {name:'Video ±1000ms', type:'bar',data:[30.4, 35.3, 36.3, 33.7],
+      itemStyle:{color:'#fca5a5',borderRadius:[5,5,0,0]}},
+    {name:'Img+ASR ±500ms',type:'bar',data:[43.4, 50.8, 45.3, 57.9],
+      itemStyle:{color:'#34d399',borderRadius:[5,5,0,0]},
+      label:{show:true,position:'top',fontFamily:_FONT,fontSize:12,color:_C.textMid,
+        formatter:p=>p.value+'%'}},
+    {name:'Img+ASR ±1000ms',type:'bar',data:[61.4, 72.2, 61.3, 72.5],
+      itemStyle:{color:'#6ee7b7',borderRadius:[5,5,0,0]}}
+  ]
+});
+
+const allCharts=[datasetChart,sizeChart,threshChart,compChart,sceneChart,objSizeChart,
+  strokeDurChart,strokePosChart,tsVideoChart,tsImagesChart,tsLevelVideoChart,tsLevelImagesChart,
+  submetricChart,failureBottleneckChart,bottleneckChart,heatmapChart,lollipopChart,tsBiasChart,calAccChart];
+if(imagesAsrEl) allCharts.push(echarts.getInstanceByDom(imagesAsrEl));
+if(imagesAsrDeltaEl) allCharts.push(echarts.getInstanceByDom(imagesAsrDeltaEl));
+window.addEventListener('resize',()=>allCharts.forEach(c=>c&&c.resize()));
+
+</script>
+</body>
+</html>

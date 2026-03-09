@@ -4,7 +4,7 @@
 
 This is the official repository for **EcoG-Bench**, as presented in the paper *"Listening with the Eyes: Benchmarking Egocentric Co-Speech Grounding across Space and Time"*.
 
-[**中文版本 (Chinese Version)**](README_zn.md)
+[**中文版本 (Chinese Version)**](assets/README_zn.md)
 
 ---
 
@@ -26,6 +26,9 @@ In situated collaboration, speakers often use intentionally underspecified deict
 
 ```text
 .
+├── assets/                      # Static assets (images, documentation)
+│   ├── task_info_en.md         # Detailed task definition (English)
+│   └── task_info_zh.md         # Detailed task definition (Chinese)
 ├── data/                       # EcoG Dataset (English and Chinese subsets)
 ├── src/                        # Core Source Code
 │   ├── data_loader.py          # Dataset loading utilities
@@ -43,7 +46,6 @@ In situated collaboration, speakers often use intentionally underspecified deict
 ├── main.py                     # Main entry for inference and evaluation
 ├── run_temporal_anchor_ablation.py # Script for temporal anchor ablation studies
 ├── requirements.txt            # Python dependencies
-└── task_info.md                # Detailed task definition and annotation format
 ```
 
 ---
@@ -118,22 +120,20 @@ This script evaluates the model's performance under different conditions (e.g., 
 
 ### Main Results on EcoG-Bench
 
-| Model | L1 (eco/seq/cls) | L2 (eco/seq/cls) | L3 (eco/seq/cls) | L4 (eco/seq/cls) | Overall (eco/seq/cls) |
+| Model | L1 | L2 | L3 | L4 | Overall |
 | :--- | :---: | :---: | :---: | :---: | :---: |
 | **Native Omni Models** | | | | | |
-| Gemini-3-Pro | 30.2 / 30.2 / 79.9 | 29.2 / 29.2 / 71.5 | 10.6 / 1.8 / 51.9 | 10.2 / 0.4 / 64.5 | 17.0 / 10.9 / 63.9 |
-| Gemini-3-Flash | 12.2 / 12.2 / 71.2 | 10.2 / 10.2 / 69.3 | 3.2 / 0.7 / 65.3 | 6.6 / 0.0 / 79.5 | 7.0 / 4.1 / 71.4 |
-| Qwen3-Omni-30B-A3B | 3.6 / 3.6 / 40.3 | 0.7 / 0.7 / 48.9 | 0.0 / 0.0 / 23.9 | 0.0 / 0.0 / 19.1 | 0.7 / 0.7 / 29.5 |
-| Qwen3-Omni-Flash | 2.9 / 2.9 / 59.7 | 0.7 / 0.7 / 66.4 | 0.2 / 0.0 / 40.5 | 0.0 / 0.0 / 37.2 | 0.7 / 0.6 / 47.1 |
+| 🏆Gemini-3-Pro | 30.2 | 29.2 | 10.6 | 10.2 | 17.0 |
+| Gemini-3-Flash | 12.2 | 10.2 | 3.2 | 6.6 | 7.0 |
+| Qwen3-Omni-30B-A3B | 3.6 | 0.7 | 0.0 | 0.0 | 0.7 |
+| Qwen3-Omni-Flash | 2.9 | 0.7 | 0.2 | 0.0 | 0.7 |
 | **Vision-Language Models** | | | | | |
-| Qwen3-VL-30B | 18.0 / 18.0 / 64.0 | 19.7 / 19.7 / 60.6 | 8.5 / 0.7 / 34.3 | 6.6 / 0.0 / 25.6 | 11.4 / 6.7 / 41.2 |
-| Qwen3-VL-8B | 21.6 / 21.6 / 66.9 | 16.1 / 16.1 / 59.9 | 4.4 / 0.4 / 32.7 | 2.7 / 0.0 / 30.5 | 8.8 / 6.5 / 42.5 |
-| GPT-5-mini | 5.0 / 5.0 / 74.8 | 2.9 / 2.9 / 56.9 | 2.8 / 0.4 / 38.4 | 3.2 / 0.0 / 47.3 | 3.3 / 1.5 / 50.5 |
+| Qwen3-VL-30B | 18.0 | 19.7 | 8.5 | 6.6 | 11.4 |
+| Qwen3-VL-8B | 21.6 | 16.1 | 4.4 | 2.7 | 8.8 |
+| GPT-5-mini | 5.0 | 2.9 | 2.8 | 3.2 | 3.3 |
 
 > **Metric Definitions**:
-> *   **eco (Eco-Accuracy)**: A referent is considered correct only if *What* (Intent), *Where* (Spatial), and *When* (Temporal) are all correctly grounded.
-> *   **seq (Sequence Success)**: Clip-level sequence success rate for multi-step tasks.
-> *   **cls (Classification)**: Accuracy for object and space category classification.
+> *   **Eco-Accuracy (eco)**: A referent is considered correct only if *What* (Intent), *Where* (Spatial), and *When* (Temporal) are all correctly grounded.
 > *   **L1-L4**: Task complexity levels ranging from simple pointing to multi-step interactions.
 
 ---
